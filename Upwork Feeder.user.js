@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Upwork Feeder
 // @namespace    http://valloon.me/
-// @version      23.07.14
+// @version      23.07.15
 // @description  automatically apply on upwork jobs
 // @author       Valloon
 // @match        https://www.upwork.com/*
@@ -45,6 +45,10 @@ const CHANNELS=0;
                     this.stop=true;
                     alertBox.style.opacity=".5";
                 }
+            }
+            alertBox.oncontextmenu=function(e){
+                e.preventDefault();
+                alert("Click OK to continue");
             }
             document.body.appendChild(alertBox);
         }

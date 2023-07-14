@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Upwork SignUp
 // @namespace    http://valloon.me/
-// @version      23.07.14
+// @version      23.07.15
 // @description  automatically sign up on upwork
 // @author       Valloon
 // @match        https://www.upwork.com/*
@@ -25,7 +25,7 @@ const HOME_URL=`${SERVER_URL}/api/v2/account/live`;
 
 (async function() {
     'use strict';
-    console.log('Script started');
+    console.log('Script loaded');
 
     function getCookie(name) {
         const value = `; ${document.cookie}`;
@@ -50,6 +50,10 @@ const HOME_URL=`${SERVER_URL}/api/v2/account/live`;
                     this.stop=true;
                     alertBox.style.opacity=".5";
                 }
+            }
+            alertBox.oncontextmenu=function(e){
+                e.preventDefault();
+                alert("Click OK to continue");
             }
             document.body.appendChild(alertBox);
         }
@@ -83,6 +87,20 @@ const HOME_URL=`${SERVER_URL}/api/v2/account/live`;
         (typeof onclick==="function") && (alertMessage.onclick=onclick);
         document.body.appendChild(alertMessage);
         document.title=message;
+    }
+
+    function searchTree(element, tag) {
+        if (element.$vnode.tag.includes(tag)) {
+            return element;
+        } else if (element.$children != null) {
+            let i;
+            let result = null;
+            for (i = 0; result == null && i < element.$children.length; i++) {
+                result = searchTree(element.$children[i], tag);
+            }
+            return result;
+        }
+        return null;
     }
 
     if(!location.href.startsWith(SERVER_URL)){
@@ -129,13 +147,13 @@ const HOME_URL=`${SERVER_URL}/api/v2/account/live`;
         } catch (error) {
             console.error('Failed to get script:', error);
             alertMessage(error);
-            return false;
         }
+        return false;
     }
 
-    async function fixProfileSetting(){
+    async function fixNotificationSetting(){
         try {
-            const settingResponse = await fetch("https://www.upwork.com/ab/notification-settings/api/settings", {
+            const response = await fetch("https://www.upwork.com/ab/notification-settings/api/settings", {
                 "method": "POST",
                 "headers": {
                     "x-odesk-csrf-token": getCookie("XSRF-TOKEN"),
@@ -145,18 +163,20 @@ const HOME_URL=`${SERVER_URL}/api/v2/account/live`;
                 "referrer": "https://www.upwork.com/en-gb/ab/notification-settings/",
                 "body": "{\"desktopCounter\":\"all\",\"desktopNotify\":\"all\",\"desktopSound\":\"false\",\"mobileNotify\":\"all\",\"mobileCounter\":\"all\",\"mobileSound\":\"false\",\"dashEmailFreq\":\"immediate\",\"dashEmailWhen\":\"all\",\"dashEmailPresence\":\"always\",\"allContracts\":\"mine\",\"allRecruiting\":\"mine\",\"receive_documents_digitally\":false,\"dash_desktop_all\":true,\"dash_desktop_important\":true,\"dash_desktop_never\":true,\"dash_desktop_sound\":true,\"dash_message_counter_all\":true,\"dash_message_counter_important\":true,\"dash_email_approximately\":true,\"dash_email_all\":true,\"dash_email_important\":true,\"dash_email_presence\":true,\"er_job_posted\":true,\"er_japp_submitted\":true,\"er_intv_acc\":true,\"er_intv_declined\":true,\"er_offer_updated\":true,\"er_job_will_expire\":true,\"er_job_expired\":true,\"er_no_intv\":true,\"pja_intv_accepted\":true,\"pja_offer\":true,\"pja_japp_declined\":true,\"pja_japp_rejected\":true,\"pja_job_change\":true,\"pja_japp_withdrawn\":true,\"cntr_hire\":true,\"cntr_timelog_begins\":true,\"cntr_terms\":true,\"cntr_end\":true,\"cntr_timelog\":true,\"cntr_fb_change\":true,\"cntr_offline_summary\":true,\"cntr_bpa_wk_buyer\":true,\"cntr_misc\":true,\"cntr_bpa\":true,\"grp_mem\":true,\"ref_profile\":true,\"ref_invite\":true,\"cntr_revoke\":true,\"subscription_event\":true,\"on_board_msg\":true,\"misc_local\":true,\"who_viewed_job\":true,\"connects_expiry\":true,\"connects_purchase\":true,\"job_recommendations\":true,\"marketing_email\":false,\"tc\":[]}",
             });
-            const settingResponseJson = await settingResponse.json();
-            console.log(settingResponseJson);
-            alertMessageNext(`Profile setting fixed: `+JSON.stringify(settingResponseJson));
+            const data = await response.json();
+            console.log(`Notification setting fixed: `, data);
+            alertMessageNext(`Notification setting fixed: `+JSON.stringify(data));
+            return true;
         } catch (error) {
-            console.error('Failed to fixProfileSetting:', error);
+            console.error('Failed to fix notification setting: ', error);
             alertMessage(error);
         }
+        return false;
     }
 
     async function fixMembershipSetting(){
         try {
-            const membershipResponse = await fetch("https://www.upwork.com/ab/plans/api/subscription/subscribe", {
+            const response = await fetch("https://www.upwork.com/ab/plans/api/subscription/subscribe", {
                 "method": "POST",
                 "headers": {
                     "x-odesk-csrf-token": getCookie("XSRF-TOKEN"),
@@ -166,13 +186,61 @@ const HOME_URL=`${SERVER_URL}/api/v2/account/live`;
                 "referrer": "https://www.upwork.com/nx/plans/membership/change-plan",
                 "body": `{\"requestDate\":\"${new Date().toISOString()}\",\"pageDate\":\"${(new Date(new Date().getTime()-60000-Math.random()*120000)).toISOString()}\",\"paramFS\":\"outOfConnects\",\"planId\":20}`,
             });
-            const membershipResponseJson = await membershipResponse.json();
-            console.log(membershipResponseJson);
-            alertMessageNext(`Membership setting fixed: `+JSON.stringify(membershipResponseJson));
+            const data = await response.json();
+            console.log(`Membership setting fixed: `, data);
+            alertMessageNext(`Membership setting fixed: `+JSON.stringify(data));
+            return true;
         } catch (error) {
-            console.error('Failed to fixMembershipSetting:', error);
+            console.error('Failed to fix membership setting: ', error);
             alertMessage(error);
         }
+        return false;
+    }
+
+    async function fixVisibilityPrivate(){
+        try {
+            const response = await fetch("https://www.upwork.com/freelancers/settings/api/v1/profile/me/profile-access", {
+                "method": "POST",
+                "headers": {
+                    "x-odesk-csrf-token": getCookie("XSRF-TOKEN"),
+                    "x-odesk-user-agent": "oDesk LM",
+                    "x-requested-with": "XMLHttpRequest"
+                },
+                "referrer": "https://www.upwork.com/freelancers/settings/profile",
+                "body": "{\"profileVisibility\":2}",
+            });
+            const data = await response.json();
+            console.log(`Fix visibility to Private: `, data);
+            alertMessageNext(`Fix visibility to Private: `+JSON.stringify(data));
+            return true;
+        } catch (error) {
+            console.error('Failed to fix visibility: ', error);
+            alertMessage(error);
+        }
+        return false;
+    }
+
+    async function fixExperienceLevel(){
+        try {
+            const response = await fetch("https://www.upwork.com/freelancers/settings/api/v1/profile/me/contractor-tier", {
+                "method": "PUT",
+                "headers": {
+                    "x-odesk-csrf-token": getCookie("XSRF-TOKEN"),
+                    "x-odesk-user-agent": "oDesk LM",
+                    "x-requested-with": "XMLHttpRequest"
+                },
+                "referrer": "https://www.upwork.com/freelancers/settings/profile",
+                "body": "{\"contractorTier\":3}",
+            });
+            const data = await response.json();
+            console.log(`Fix experience level to Expert: `, data);
+            alertMessageNext(`Fix experience level to Expert: `+JSON.stringify(data));
+            return true;
+        } catch (error) {
+            console.error('Failed to experience level: ', error);
+            alertMessage(error);
+        }
+        return false;
     }
 
     async function reportSignupResult(signupInfo, profileTitle, state){
@@ -362,6 +430,7 @@ const HOME_URL=`${SERVER_URL}/api/v2/account/live`;
         alertMessageNext(signupInfo.email);
         exitTimeout=99;
         for (let i = 0; i < 5; i++) {
+            await new Promise(resolve => setTimeout(resolve, 3000));
             try {
                 alertMessage(`Verifying... ${i||""}`);
                 const response = await fetch(`${SERVER_URL}/api/v2/account/${signupInfo.email}/email-verify?try=${i}`, {
@@ -387,7 +456,6 @@ const HOME_URL=`${SERVER_URL}/api/v2/account/live`;
                 console.warn('Error:', error);
                 alertMessageNext(error);
             }
-            await new Promise(resolve => setTimeout(resolve, 3000));
         }
         alertMessage("Failed to email-verify");
     } else if (location.pathname.endsWith('/nx/signup/verify-email/token/')) {
@@ -471,9 +539,38 @@ const HOME_URL=`${SERVER_URL}/api/v2/account/live`;
                 unsafeWindow.setProfile(unsafeWindow.$nuxt.$store._vm.$data.$$state['mini-profile']);
                 await new Promise(resolve => setTimeout(resolve, 100));
                 if (!document.querySelectorAll("button.fe-upload-btn.upload-btn img").length) {
-                    alertMessage(`Waiting for file upload...`);
-                    document.title=`!^$/${signupInfo.photoFiilename}/${signupInfo.email}`;
-                    exitTimeout=-1;
+                    // alertMessage(`Waiting for file upload...`);
+                    // document.title=`!^$/${signupInfo.photoFiilename}/${signupInfo.email}`;
+                    // exitTimeout=-1;
+                    // while (true) {
+                    //     let inputFileUpload=document.querySelector("input[type=file][name=imageUpload]");
+                    //     if(!inputFileUpload){
+                    //         [...document.querySelectorAll("button")].filter(a => a.innerText.includes("Upload photo")).forEach(a => a.click());
+                    //         await new Promise(r => setTimeout(r, 1000));
+                    //         continue;
+                    //     }
+                    //     inputFileUpload.style.cssText="position: fixed;inset: 0px;z-index: 9999;";
+                    //     if (document.querySelectorAll("img.cr-original-image").length) {
+                    //         alertMessage("");
+                    //         document.title="Photo uploaded";
+                    //         await new Promise(resolve => setTimeout(resolve, 1000));
+                    //         [...document.querySelectorAll("button")].filter(a => a.innerText.includes("Attach photo")).forEach(a => a.click());
+                    //         inputFileUpload.style.cssText="";
+                    //         await new Promise(resolve => setTimeout(resolve, 1000));
+                    //         exitTimeout=30;
+                    //         break;
+                    //     }
+                    //     console.log(`Waiting for file upload...`);
+                    //     await new Promise(r => setTimeout(r, 1000));
+                    // }
+                    // while (true) {
+                    //     if (document.querySelectorAll("button.fe-upload-btn.upload-btn img").length) {
+                    //         document.querySelector("button[data-test=next-button]")?.click();
+                    //         break;
+                    //     }
+                    //     await new Promise(r => setTimeout(r, 1000));
+                    // }
+                    alertMessage(`Uploading photo...`);
                     while (true) {
                         let inputFileUpload=document.querySelector("input[type=file][name=imageUpload]");
                         if(!inputFileUpload){
@@ -481,25 +578,32 @@ const HOME_URL=`${SERVER_URL}/api/v2/account/live`;
                             await new Promise(r => setTimeout(r, 1000));
                             continue;
                         }
-                        inputFileUpload.style.cssText="position: fixed;inset: 0px;z-index: 9999;";
+                        break;
+                    }
+                    {
+                        let response = await fetch(`${SERVER_URL}/script/${signupInfo.photoFiilename}`);
+                        let data = await response.blob();
+                        let metadata = {
+                            type: 'image/jpeg'
+                        };
+                        let file = new File([data], "test.jpg", metadata);
+                        let elUpCImageCrop = searchTree(unsafeWindow.$nuxt.$children[0], 'UpCImageCrop');
+                        let obj = {};
+                        obj.target = { files: [file] };
+                        elUpCImageCrop.addFile(obj);
+                    }
+                    while (true) {
                         if (document.querySelectorAll("img.cr-original-image").length) {
                             alertMessage("");
                             document.title="Photo uploaded";
                             await new Promise(resolve => setTimeout(resolve, 1000));
                             [...document.querySelectorAll("button")].filter(a => a.innerText.includes("Attach photo")).forEach(a => a.click());
-                            inputFileUpload.style.cssText="";
-                            await new Promise(resolve => setTimeout(resolve, 1000));
-                            exitTimeout=30;
                             break;
                         }
-                        console.log(`Waiting for file upload...`);
                         await new Promise(r => setTimeout(r, 1000));
                     }
                     while (true) {
-                        if (document.querySelectorAll("button.fe-upload-btn.upload-btn img").length) {
-                            document.querySelector("button[data-test=next-button]")?.click();
-                            break;
-                        }
+                        if (!document.querySelector("input[type=file][name=imageUpload]")) break;
                         await new Promise(r => setTimeout(r, 1000));
                     }
                 }else if([...document.querySelectorAll(".has-error span")].filter(a => a.innerText.includes("Phone number must be verified")).length){
@@ -521,8 +625,8 @@ const HOME_URL=`${SERVER_URL}/api/v2/account/live`;
                 [...document.querySelectorAll("button")].filter(a => a.innerText.includes("Submit profile")).forEach(a => a.click());
                 await new Promise(resolve => setTimeout(resolve, 1000));
             } else if (location.pathname.endsWith('/nx/create-profile/finish')) {
-                await fixProfileSetting();
-                await fixMembershipSetting();
+                exitTimeout=10;
+                let fixSettingResult=await fixNotificationSetting() && await fixMembershipSetting() && await fixVisibilityPrivate() && await fixExperienceLevel();
                 if (signupInfo.category) {
                     let profileTitle;
                     try {
@@ -531,11 +635,11 @@ const HOME_URL=`${SERVER_URL}/api/v2/account/live`;
                         console.log(error);
                     }
                     if(reportSignupResult(signupInfo, profileTitle)){
-                        location.href=HOME_URL;
+                        if(fixSettingResult) exitTimeout=1;
                         return;
                     }
                 } else {
-                    location.href=HOME_URL;
+                    if(fixSettingResult) exitTimeout=1;
                     return;
                 }
             } else {
@@ -557,9 +661,8 @@ const HOME_URL=`${SERVER_URL}/api/v2/account/live`;
         await runScript();
         let signupInfo=unsafeWindow.signupInfo;
         alertMessageNext(signupInfo.email);
-        exitTimeout=99;
-        await fixProfileSetting();
-        await fixMembershipSetting();
+        exitTimeout=10;
+        let fixSettingResult=await fixNotificationSetting() && await fixMembershipSetting() && await fixVisibilityPrivate() && await fixExperienceLevel();
         if (signupInfo.category) {
             let profileTitle;
             try {
@@ -568,11 +671,11 @@ const HOME_URL=`${SERVER_URL}/api/v2/account/live`;
                 console.log(error);
             }
             if(reportSignupResult(signupInfo, profileTitle)){
-                location.href=HOME_URL;
+                if(fixSettingResult) exitTimeout=1;
                 return;
             }
         } else {
-            location.href=HOME_URL;
+            if(fixSettingResult) exitTimeout=1;
             return;
         }
     } else {

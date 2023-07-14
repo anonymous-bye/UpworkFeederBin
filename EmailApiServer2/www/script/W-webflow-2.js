@@ -13,7 +13,7 @@ window.signupInfo = {
     photoFiilename: "W-webflow-2.jpg",
 };
 
-// setProfile(window.$nuxt.$root.$store.app.store._vm.$data.$$state['mini-profile']);
+// setProfile(window.$nuxt.$store._vm.$data.$$state['mini-profile']);
 function setProfile(t) {
     t ??= {};
     t.profileTitle = "Webflow Specialist | Frontend Developer | Responsive Design | Figma";

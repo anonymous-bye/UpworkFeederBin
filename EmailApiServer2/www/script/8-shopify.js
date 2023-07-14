@@ -13,7 +13,7 @@ window.signupInfo = {
     photoFiilename: "8-shopify.jpg",
 };
 
-// setProfile(window.$nuxt.$root.$store.app.store._vm.$data.$$state['mini-profile']);
+// setProfile(window.$nuxt.$store._vm.$data.$$state['mini-profile']);
 function setProfile(t) {
     t ??= {};
     t.profileTitle = "Shopify Certified | Ecommerce | WordPress | Node/React | Wix | SEO";

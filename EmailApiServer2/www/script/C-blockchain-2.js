@@ -13,7 +13,7 @@ window.signupInfo = {
 	photoFiilename: "C-blockchain-2.jpg",
 };
 
-// setProfile(window.$nuxt.$root.$store.app.store._vm.$data.$$state['mini-profile']);
+// setProfile(window.$nuxt.$store._vm.$data.$$state['mini-profile']);
 function setProfile(t) {
     t ??= {};
 	t.profileTitle = "Web & Blockchain Developer | Solidity | Ethereum | Rust | React | Web3";

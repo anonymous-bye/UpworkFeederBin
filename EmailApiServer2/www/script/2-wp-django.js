@@ -13,7 +13,7 @@ window.signupInfo = {
     photoFiilename: "2-wp-django.jpg",
 };
 
-// setProfile(window.$nuxt.$root.$store.app.store._vm.$data.$$state['mini-profile']);
+// setProfile(window.$nuxt.$store._vm.$data.$$state['mini-profile']);
 function setProfile(t) {
     t ??= {};
     t.profileTitle = "Full-Stack | WordPress/PHP/Laravel | Node/React/Vue | Python/Django";
