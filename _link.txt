@@ -1,0 +1,26 @@
+you can find all installers here:
+https://drive.google.com/drive/folders/1SPErMhzaPP9cKkXoG8gWih37yIt-inyj?usp=drive_link
+
+And you can see about the mail server here:
+https://drive.google.com/drive/folders/1vKEqV0ClsVHsC5T2-oJtxr76zW6KgTLN
+
+
+
+======================================================================
+Chrome extensions
+======================================================================
+• Keyboard shortcuts to close Chrome tabs
+https://chrome.google.com/webstore/detail/keyboard-shortcuts-to-clo/fipfgiejfpcdacpjepkohdlnjonchnal
+
+• Cookie AutoDelete
+https://chrome.google.com/webstore/detail/cookie-autodelete/fhcgjolkccmbidfldomjliifgaodjagh
+
+* Tampermonkey
+https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo
+
+
+
+======================================================================
+C# App Src
+======================================================================
+https://github.com/valloon91234/UpworkFeeder/tree/main/UpworkFeeder2
