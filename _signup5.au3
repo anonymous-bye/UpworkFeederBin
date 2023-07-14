@@ -18,17 +18,17 @@ Global $pause=false
 HotKeySet("!1", "PauseScript")
 Func PauseScript()
 	$pause=true
-	TrayTip("Pause", "Signup paused", 1, 1)
+	TrayTip("Pause", "Paused", 1, 1)
 	ConsoleWrite("Paused" & @CRLF)
 EndFunc
 HotKeySet("!2", "ContinueScript")
 Func ContinueScript()
 	$pause=false
-	TrayTip("Continue", "Signup resumed", 1, 1)
+	TrayTip("Continue", "Resumed", 1, 1)
 	ConsoleWrite("Resumed" & @CRLF)
 EndFunc
 
-TrayTip("Ready", "Signup started", 1, 1)
+TrayTip("Ready", "Started", 1, 1)
 
 Local $interval=0;
 Local $dangerCount=0;
@@ -51,10 +51,10 @@ While 1
 	If $handle > 0 Then
 		Local $title=WinGetTitle($handle)
 		if $lastTitle==$title Then
-			If $dangerCount>10 Then
+			If $dangerCount>20 Then
 				ConsoleWrite($lastTitle & ": " & $dangerCount & @CRLF)
 			EndIf
-			If $dangerCount>20 Then
+			If $dangerCount>60 Then
 				WinActivate("[REGEXPTITLE:(?i).* - Google Chrome$]")
 				Sleep(1000)
 				Send("^w")

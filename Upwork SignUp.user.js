@@ -496,6 +496,7 @@ const HOME_URL=`${SERVER_URL}/api/v2/account/live`;
                 document.querySelector("button[data-test=next-button]")?.click();
             } else if (location.pathname.endsWith('/nx/create-profile/resume-import')) {
                 [...document.querySelectorAll("button")].filter(a => a.innerText.includes("Fill out manually (15 min)") || a.innerText.includes("Fill in manually (15 min)")).forEach(a => a.click());
+                [...document.querySelectorAll("[data-qa=resume-upload-confirmation-footer] button")].filter(a => a.innerText.includes("Start a new profile")).forEach(a => a.click());
             } else if (location.pathname.endsWith('/nx/create-profile/title')) {
                 unsafeWindow.$nuxt.$store._vm.$data.$$state['mini-profile'].profileTitle=unsafeWindow.setProfile({}).profileTitle;
                 await new Promise(resolve => setTimeout(resolve, 100));
@@ -580,7 +581,7 @@ const HOME_URL=`${SERVER_URL}/api/v2/account/live`;
                         }
                         break;
                     }
-                    {
+                    try{
                         let response = await fetch(`${SERVER_URL}/script/${signupInfo.photoFiilename}`);
                         let data = await response.blob();
                         let metadata = {
@@ -591,11 +592,14 @@ const HOME_URL=`${SERVER_URL}/api/v2/account/live`;
                         let obj = {};
                         obj.target = { files: [file] };
                         elUpCImageCrop.addFile(obj);
+                    }catch(error){
+                        exitTimeout=-1;
+                        alertMessage(`Failed to download/upload photo: ` + error);
+                        console.error(`Failed to download/upload photo: `, error);
                     }
                     while (true) {
                         if (document.querySelectorAll("img.cr-original-image").length) {
-                            alertMessage("");
-                            document.title="Photo uploaded";
+                            alertMessage("Photo uploaded");
                             await new Promise(resolve => setTimeout(resolve, 1000));
                             [...document.querySelectorAll("button")].filter(a => a.innerText.includes("Attach photo")).forEach(a => a.click());
                             break;
@@ -614,7 +618,7 @@ const HOME_URL=`${SERVER_URL}/api/v2/account/live`;
                         console.log(error);
                     }
                     if(reportSignupResult(signupInfo, profileTitle, "failed-phone")){
-                        location.href=HOME_URL;
+                        exitTimeout=1;
                         return;
                     }
                 }else{
@@ -623,7 +627,6 @@ const HOME_URL=`${SERVER_URL}/api/v2/account/live`;
                 }
             } else if (location.pathname.endsWith('/nx/create-profile/submit')) {
                 [...document.querySelectorAll("button")].filter(a => a.innerText.includes("Submit profile")).forEach(a => a.click());
-                await new Promise(resolve => setTimeout(resolve, 1000));
             } else if (location.pathname.endsWith('/nx/create-profile/finish')) {
                 exitTimeout=10;
                 let fixSettingResult=await fixNotificationSetting() && await fixMembershipSetting() && await fixVisibilityPrivate() && await fixExperienceLevel();
@@ -656,7 +659,8 @@ const HOME_URL=`${SERVER_URL}/api/v2/account/live`;
         let loginInfo=GM_getValue("loginInfo");
         if(!loginInfo){
             alertMessage(`loginInfo not found`);
-            location.href=HOME_URL;
+            exitTimeout=1;
+            return;
         }
         await runScript();
         let signupInfo=unsafeWindow.signupInfo;
