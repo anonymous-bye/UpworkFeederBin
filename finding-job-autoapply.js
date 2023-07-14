@@ -384,7 +384,7 @@ window.checkCountryBan = function (countryName) {
 	if (countryName == "India" || countryName == "Pakistan" || countryName == "Bangladesh" || countryName == "Nigeria" || countryName == "South Korea"
 		|| countryName == "Ukraine" || countryName == "Kazakhstan" || countryName == "Serbia")
 		return true;
-	return true;
+	// return true;
 }
 
 window.checkTitleBan = function (jobTitleLowerCase) {
