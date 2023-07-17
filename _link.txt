@@ -1,7 +1,7 @@
-you can find all installers here:
+You can download all installers here (download on your vps):
 https://drive.google.com/drive/folders/1SPErMhzaPP9cKkXoG8gWih37yIt-inyj?usp=drive_link
 
-And you can see about the mail server here:
+And you can some hints here (download on your pc):
 https://drive.google.com/drive/folders/1vKEqV0ClsVHsC5T2-oJtxr76zW6KgTLN
 
 
