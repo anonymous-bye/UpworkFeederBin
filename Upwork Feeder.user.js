@@ -19,8 +19,8 @@
 // @require http://code.jquery.com/jquery-latest.js
 
 
-const SERVER_URL="http://localhost";
-const CHANNELS=0;
+const SERVER_URL = "http://localhost";
+const CHANNELS = 0;
 
 
 (async function() {
@@ -312,7 +312,7 @@ const CHANNELS=0;
                 clearTimeout(scrollToBottomTimeout);
                 unsafeWindow.scrollTo(0, 0);
                 console.log("Account suspended.");
-                alertMessage("Account suspended.")
+                alertMessage(`Suspended: ${applyData.email}`)
                 await applyNextEmail(applyData, "account-suspended");
                 exitTimeout=3;
                 return true;

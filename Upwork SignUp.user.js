@@ -19,10 +19,13 @@
 // @require http://code.jquery.com/jquery-latest.js
 
 
-const SERVER_URL="http://localhost";
-// const SERVER_URL="http://web.valloon.me";
-const HOME_URL=`${SERVER_URL}/api/v2/account/live`;
+const SERVER_URL = "http://localhost";
+// const SERVER_URL = "http://web.valloon.me";
+const CHANNEL = 0;
+const DEBUG_MODE = 0;
 
+
+const HOME_URL=`${SERVER_URL}/api/v2/account/history/today`;
 (async function() {
     'use strict';
     console.log('Script loaded');
@@ -123,6 +126,8 @@ const HOME_URL=`${SERVER_URL}/api/v2/account/live`;
                     }
                     exitTimeout--;
                 }
+            }else{
+                alertBig("_");
             }
             await new Promise(resolve => setTimeout(resolve, 1000));
         }
@@ -245,6 +250,7 @@ const HOME_URL=`${SERVER_URL}/api/v2/account/live`;
 
     async function reportSignupResult(signupInfo, profileTitle, state){
         try {
+            let ipAddress=GM_getValue("ipAddress");
             const response = await fetch(`${SERVER_URL}/api/v2/account/${signupInfo.email}/new`, {
                 method: 'POST',
                 headers: {
@@ -254,7 +260,8 @@ const HOME_URL=`${SERVER_URL}/api/v2/account/live`;
                     password: signupInfo.password,
                     profile: signupInfo.category,
                     profileTitle: profileTitle,
-                    state: state || ""
+                    state: state || "",
+                    ip: ipAddress || "",
                 })
             });
             const data = await response.json();
@@ -277,30 +284,47 @@ const HOME_URL=`${SERVER_URL}/api/v2/account/live`;
     if(location.href.startsWith(SERVER_URL)){
         GM_deleteValue("signupData");
         GM_deleteValue("loginInfo");
-        let tryCount=0;
-        while (true) {
-            if(!alertBig(tryCount)){
-                if(tryCount>0){
-                    console.log(`Retrying to get signup data... ${tryCount}`);
-                    try {
-                        const response = await fetch(`${SERVER_URL}/api/v2/account/need2?try=${tryCount}`);
-                        const signupData = await response.json();
-                        if (signupData.success) {
-                            GM_setValue("signupData",signupData);
-                            alertMessage(`${signupData.nextNumber} / ${signupData.scriptFilename}`);
-                            location.href="https://www.upwork.com/nx/signup/";
-                            return;
-                        }
-                        alertMessage();
-                        document.title=`${tryCount} on signup`;
-                    } catch (error) {
-                        console.error(`Error (${tryCount}):`, error);
-                        alertMessage(`${error} (${tryCount})`);
-                    }
-                }
-                tryCount++;
+        let roundCount=GM_getValue("roundCount")||0;
+        roundCount++;
+        if(roundCount>10){
+            document.title="!!! Reopen Me";
+            GM_deleteValue("roundCount");
+        }else{
+            GM_setValue("roundCount", roundCount);
+            try {
+                const response = await fetch(`http://ip-api.com/json`);
+                const data = await response.json();
+                const ip=data.query;
+                alertMessageNext(ip);
+                GM_setValue("ipAddress", ip);
+            } catch (error) {
+                console.error('Error:', error);
             }
-            await new Promise(resolve => setTimeout(resolve, 3000));
+            let tryCount=0;
+            while (true) {
+                if(!alertBig(tryCount)){
+                    if(tryCount>0){
+                        console.log(`Retrying to get signup data... ${tryCount}`);
+                        try {
+                            const response = await fetch(`${SERVER_URL}/api/v2/account/need2?channel=${CHANNEL}&try=${tryCount}`);
+                            const signupData = await response.json();
+                            if (signupData.success) {
+                                GM_setValue("signupData",signupData);
+                                alertMessage(`${signupData.nextNumber} / ${signupData.scriptFilename}`);
+                                location.href="https://www.upwork.com/nx/signup/";
+                                return;
+                            }
+                            alertMessage();
+                            document.title=`${tryCount} on signup`;
+                        } catch (error) {
+                            console.error(`Error (${tryCount}):`, error);
+                            alertMessage(`${error} (${tryCount})`);
+                        }
+                    }
+                    tryCount++;
+                }
+                await new Promise(resolve => setTimeout(resolve, 3000));
+            }
         }
     }else if (location.pathname.endsWith('/ab/account-security/login')) {
         await runScript();
@@ -413,7 +437,8 @@ const HOME_URL=`${SERVER_URL}/api/v2/account/live`;
         termsCheck.checked = true;
         termsCheck.dispatchEvent(new Event("change"));
         while(true){
-            document.querySelector("#button-submit-form").click();
+            let createAccountButton=document.querySelector("#button-submit-form");
+            createAccountButton && !createAccountButton.disabled && createAccountButton.click();
             let cookieAcceptButton = document.querySelector("#onetrust-accept-btn-handler");
             cookieAcceptButton && cookieAcceptButton.click();
             if ([...document.querySelectorAll(".error-message span")].filter(a => a.innerText.includes("This email is already in use.")).length) {
@@ -450,7 +475,7 @@ const HOME_URL=`${SERVER_URL}/api/v2/account/live`;
                     location.href = data.url;
                     return;
                 }else{
-                    alertMessage("Email not verified");
+                    console.log("Email not verified");
                 }
             } catch (error) {
                 console.warn('Error:', error);
@@ -458,13 +483,13 @@ const HOME_URL=`${SERVER_URL}/api/v2/account/live`;
             }
         }
         alertMessage("Failed to email-verify");
-    } else if (location.pathname.endsWith('/nx/signup/verify-email/token/')) {
+    } else if (location.pathname.includes('/nx/signup/verify-email/token/')) {
         alertMessage("Email verified and processing...");
     } else if (location.pathname.endsWith('/nx/create-profile/') || location.pathname.endsWith('/nx/create-profile/title') || location.pathname.endsWith('/nx/create-profile/resume-import')) {
         await runScript();
         let signupInfo=unsafeWindow.signupInfo;
         alertMessageNext(signupInfo.email);
-        exitTimeout=120;
+        exitTimeout=99;
         while(true){
             if (location.pathname.endsWith('/nx/create-profile/') || location.pathname.endsWith('/nx/create-profile/welcome')) {
                 [...document.querySelectorAll("button")].filter(a => a.innerText.includes("Get started")).forEach(a => a.click());
@@ -571,8 +596,13 @@ const HOME_URL=`${SERVER_URL}/api/v2/account/live`;
                     //     }
                     //     await new Promise(r => setTimeout(r, 1000));
                     // }
-                    alertMessage(`Uploading photo...`);
-                    while (true) {
+                    if(DEBUG_MODE){
+                        alertMessage(`$$$ Uploading photo...`);
+                        exitTimeout=-1;
+                    }else{
+                        alertMessage(`Uploading photo...`);
+                    }
+                    while (!document.querySelectorAll("button.fe-upload-btn.upload-btn img").length) {
                         let inputFileUpload=document.querySelector("input[type=file][name=imageUpload]");
                         if(!inputFileUpload){
                             [...document.querySelectorAll("button")].filter(a => a.innerText.includes("Upload photo")).forEach(a => a.click());
@@ -581,6 +611,7 @@ const HOME_URL=`${SERVER_URL}/api/v2/account/live`;
                         }
                         break;
                     }
+                    if (document.querySelectorAll("button.fe-upload-btn.upload-btn img").length) break;
                     try{
                         let response = await fetch(`${SERVER_URL}/script/${signupInfo.photoFiilename}`);
                         let data = await response.blob();
@@ -588,12 +619,23 @@ const HOME_URL=`${SERVER_URL}/api/v2/account/live`;
                             type: 'image/jpeg'
                         };
                         let file = new File([data], "test.jpg", metadata);
-                        let elUpCImageCrop = searchTree(unsafeWindow.$nuxt.$children[0], 'UpCImageCrop');
                         let obj = {};
                         obj.target = { files: [file] };
+                        let elUpCImageCrop = searchTree(unsafeWindow.$nuxt.$children[0], 'UpCImageCrop');
+                        if(!elUpCImageCrop){
+                            if(DEBUG_MODE){
+                                alertMessage("$$$ elUpCImageCrop is null");//TODO
+                                document.title=`$$$ elUpCImageCrop is null`;//TODO
+                                await new Promise(r => setTimeout(r, 1000));//TODO
+                                alert("$$$ elUpCImageCrop is null");
+                                return;
+                            }else{
+                                exitTimeout=1;
+                                return;
+                            }
+                        }
                         elUpCImageCrop.addFile(obj);
                     }catch(error){
-                        exitTimeout=-1;
                         alertMessage(`Failed to download/upload photo: ` + error);
                         console.error(`Failed to download/upload photo: `, error);
                     }
@@ -603,12 +645,22 @@ const HOME_URL=`${SERVER_URL}/api/v2/account/live`;
                             await new Promise(resolve => setTimeout(resolve, 1000));
                             [...document.querySelectorAll("button")].filter(a => a.innerText.includes("Attach photo")).forEach(a => a.click());
                             break;
+                        }else if(![...document.querySelectorAll("button")].filter(a => a.innerText.includes("Attach photo")).length){
+                            break;
+                        }else if(![...document.querySelectorAll("button")].filter(a => a.innerText.includes("Attach photo")).length){
+                            break;
                         }
                         await new Promise(r => setTimeout(r, 1000));
                     }
                     while (true) {
-                        if (!document.querySelector("input[type=file][name=imageUpload]")) break;
+                        if (![...document.querySelectorAll("button")].filter(a => a.innerText.includes("Saving")).length) break;
                         await new Promise(r => setTimeout(r, 1000));
+                    }
+                    if(document.querySelectorAll("img[alt=portrait]").length){
+                        while (true) {
+                            if (!document.querySelector("input[type=file][name=imageUpload]")) break;
+                            await new Promise(r => setTimeout(r, 1000));
+                        }
                     }
                 }else if([...document.querySelectorAll(".has-error span")].filter(a => a.innerText.includes("Phone number must be verified")).length){
                     let profileTitle;
@@ -683,6 +735,7 @@ const HOME_URL=`${SERVER_URL}/api/v2/account/live`;
             return;
         }
     } else {
-        exitTimeout=60;
+        alertMessage(`Unknown page: '${location.pathname}'`);
+        exitTimeout=10;
     }
 })();

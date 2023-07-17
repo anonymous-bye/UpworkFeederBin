@@ -428,7 +428,7 @@ window.getProposalTypes = function (jobTitle, jobDescription, checkBan) {
 			{ preference: 1, title: "wordpress", profile: "laravel-ruby", proposalId: "wordpress-2", channel: 0, priority: 3 },
 			{ preference: 2, title: "wordpress", profile: "wp-django", proposalId: "wordpress-1", channel: 0, priority: 2 },
 		];
-	if (jobTitle.includes("laravel") || jobTitle.includes("php") || jobTitle.includes("codeigniter"))
+	if (jobTitle.includes("laravel") || jobTitle.includes("php") || jobTitle.includes("codeigniter") || jobTitle.includes("cpanel"))
 		return [
 			{ preference: 1, title: "laravel", profile: "wp-django", proposalId: "laravel-2", channel: 0, priority: 5 },
 			{ preference: 2, title: "laravel", profile: "laravel-ruby", proposalId: "laravel-1", channel: 0, priority: 4 },
@@ -523,7 +523,7 @@ window.getProposalTypes = function (jobTitle, jobDescription, checkBan) {
 					{ preference: 1, title: "web3 / blockchain", profile: "blockchain-2", proposalId: "blockchain-5", channel: 0, priority: 2 },
 					{ preference: 2, title: "web3 / blockchain", profile: "blockchain", proposalId: "blockchain-4", channel: 0, priority: 1 },
 				];
-			if (jobDescription.includes("laravel") || jobDescription.includes("php") || jobDescription.includes("codeigniter"))
+			if (jobDescription.includes("laravel") || jobDescription.includes("php") || jobDescription.includes("codeigniter") || jobDescription.includes("cpanel"))
 				return [
 					{ preference: 1, title: "laravel", profile: "wp-django", proposalId: "laravel-2", channel: 0, priority: 4 },
 					{ preference: 2, title: "laravel", profile: "laravel-ruby", proposalId: "laravel-1", channel: 0, priority: 3 },

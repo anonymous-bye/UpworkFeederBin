@@ -12,20 +12,9 @@
  Target Server Version : 150003 (150003)
  File Encoding         : 65001
 
- Date: 14/07/2023 18:05:11
+ Date: 18/07/2023 04:39:37
 */
 
-
--- ----------------------------
--- Sequence structure for tbl_message_id_seq
--- ----------------------------
-DROP SEQUENCE IF EXISTS "public"."tbl_message_id_seq";
-CREATE SEQUENCE "public"."tbl_message_id_seq" 
-INCREMENT 1
-MINVALUE  1
-MAXVALUE 2147483647
-START 1
-CACHE 1;
 
 -- ----------------------------
 -- Table structure for tbl_account
@@ -40,7 +29,8 @@ CREATE TABLE "public"."tbl_account" (
   "rising_talent" varchar(255) COLLATE "pg_catalog"."default",
   "created_date" timestamp(0),
   "last_login_date" timestamp(0),
-  "profile_title" varchar(255) COLLATE "pg_catalog"."default"
+  "profile_title" varchar(255) COLLATE "pg_catalog"."default",
+  "created_ip" varchar(255) COLLATE "pg_catalog"."default"
 )
 ;
 
@@ -73,13 +63,12 @@ CREATE TABLE "public"."tbl_application" (
 -- Records of tbl_application
 -- ----------------------------
 
-
 -- ----------------------------
 -- Table structure for tbl_message
 -- ----------------------------
 DROP TABLE IF EXISTS "public"."tbl_message";
 CREATE TABLE "public"."tbl_message" (
-  "id" int4 NOT NULL DEFAULT nextval('tbl_message_id_seq'::regclass),
+  "id" int4 NOT NULL,
   "email" varchar(255) COLLATE "pg_catalog"."default" NOT NULL,
   "job_id" varchar(255) COLLATE "pg_catalog"."default",
   "job_title" varchar(255) COLLATE "pg_catalog"."default",
@@ -114,28 +103,21 @@ CREATE TABLE "public"."tbl_profile" (
 -- ----------------------------
 -- Records of tbl_profile
 -- ----------------------------
-INSERT INTO "public"."tbl_profile" VALUES ('frontend', 'A', 'Frntend', 2, 'A-frontend.js', 50, 100, 999, NULL);
-INSERT INTO "public"."tbl_profile" VALUES ('blockchain', 'B', 'Blockchain/Web3', 2, 'B-blockchain.js', 50, 100, 999, NULL);
-INSERT INTO "public"."tbl_profile" VALUES ('blockchain-2', 'C', 'Blockchain 2', 3, 'C-blockchain-2.js', 50, 100, 999, NULL);
-INSERT INTO "public"."tbl_profile" VALUES ('frontend-2', 'F', 'Frontend 2', 3, 'F-frontend-2.js', 50, 100, 999, NULL);
-INSERT INTO "public"."tbl_profile" VALUES ('java-cs', 'J', 'Java/Spring, C#/ASP.NET', 2, 'J-java-cs.js', 50, 100, 999, NULL);
-INSERT INTO "public"."tbl_profile" VALUES ('webflow', 'Q', 'Webflow', 2, 'Q-webflow.js', 50, 100, 999, NULL);
-INSERT INTO "public"."tbl_profile" VALUES ('automation', 'V', 'Automation', 3, 'V-automation.js', 50, 100, 999, NULL);
-INSERT INTO "public"."tbl_profile" VALUES ('webflow-2', 'W', 'Webflow 2', 3, 'W-webflow-2.js', 50, 100, 999, NULL);
-INSERT INTO "public"."tbl_profile" VALUES ('basic', 'Z', 'Auto/Scraping/Bot', 2, 'Z-basic.js', 50, 100, 999, NULL);
-INSERT INTO "public"."tbl_profile" VALUES ('ecommerce', '7', 'Ecommerce, Shopify', 3, '7-ecommerce.js', 100, 7000, 7999, NULL);
-INSERT INTO "public"."tbl_profile" VALUES ('shopify', '8', 'Shopify', 2, '8-shopify.js', 100, 8000, 8999, NULL);
-INSERT INTO "public"."tbl_profile" VALUES ('laravel-ruby', '1', 'Larabel, Ruby', 2, '1-laravel-ruby.js', 200, 6100, 6999, NULL);
-INSERT INTO "public"."tbl_profile" VALUES ('node-php', '4', 'Node, React, PHP', 3, '4-node-php.js', 200, 9100, 9999, NULL);
-INSERT INTO "public"."tbl_profile" VALUES ('wp-django', '2', 'WordPress, Django', 3, '2-wp-django.js', 200, 20000, 29999, NULL);
-INSERT INTO "public"."tbl_profile" VALUES ('javascript', '5', 'React, Vue, Node', 2, '5-javascript.js', 200, 50000, 59999, NULL);
-
--- ----------------------------
--- Alter sequences owned by
--- ----------------------------
-ALTER SEQUENCE "public"."tbl_message_id_seq"
-OWNED BY "public"."tbl_message"."id";
-SELECT setval('"public"."tbl_message_id_seq"', 1, false);
+INSERT INTO "public"."tbl_profile" VALUES ('frontend', 'A', 'Frntend', 2, 'A-frontend.js', 100, 100, 999, NULL);
+INSERT INTO "public"."tbl_profile" VALUES ('blockchain', 'B', 'Blockchain/Web3', 2, 'B-blockchain.js', 100, 100, 999, NULL);
+INSERT INTO "public"."tbl_profile" VALUES ('blockchain-2', 'C', 'Blockchain 2', 3, 'C-blockchain-2.js', 100, 100, 999, NULL);
+INSERT INTO "public"."tbl_profile" VALUES ('frontend-2', 'F', 'Frontend 2', 3, 'F-frontend-2.js', 100, 100, 999, NULL);
+INSERT INTO "public"."tbl_profile" VALUES ('webflow', 'Q', 'Webflow', 2, 'Q-webflow.js', 100, 100, 999, NULL);
+INSERT INTO "public"."tbl_profile" VALUES ('automation', 'V', 'Automation', 3, 'V-automation.js', 100, 100, 999, NULL);
+INSERT INTO "public"."tbl_profile" VALUES ('webflow-2', 'W', 'Webflow 2', 3, 'W-webflow-2.js', 100, 100, 999, NULL);
+INSERT INTO "public"."tbl_profile" VALUES ('basic', 'Z', 'Auto/Scraping/Bot', 2, 'Z-basic.js', 100, 100, 999, NULL);
+INSERT INTO "public"."tbl_profile" VALUES ('javascript', '5', 'React, Vue, Node', 2, '5-javascript.js', 1000, 50000, 59999, NULL);
+INSERT INTO "public"."tbl_profile" VALUES ('wp-django', '2', 'WordPress, Django', 3, '2-wp-django.js', 1000, 20000, 29999, NULL);
+INSERT INTO "public"."tbl_profile" VALUES ('laravel-ruby', '1', 'Larabel, Ruby', 2, '1-laravel-ruby.js', 1000, 10000, 19999, NULL);
+INSERT INTO "public"."tbl_profile" VALUES ('node-php', '4', 'Node, React, PHP', 3, '4-node-php.js', 1000, 40000, 49999, NULL);
+INSERT INTO "public"."tbl_profile" VALUES ('shopify', '8', 'Shopify', 2, '8-shopify.js', 400, 80000, 89999, NULL);
+INSERT INTO "public"."tbl_profile" VALUES ('ecommerce', '7', 'Ecommerce, Shopify', 3, '7-ecommerce.js', 400, 70000, 79999, NULL);
+INSERT INTO "public"."tbl_profile" VALUES ('java-cs', 'J', 'Java/Spring, C#/ASP.NET', 3, 'J-java-cs.js', 100, 100, 999, NULL);
 
 -- ----------------------------
 -- Primary Key structure for table tbl_account
