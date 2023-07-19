@@ -19,12 +19,12 @@ https://drive.google.com/drive/folders/1vKEqV0ClsVHsC5T2-oJtxr76zW6KgTLN
 https://chrome.google.com/webstore/detail/keyboard-shortcuts-to-clo/fipfgiejfpcdacpjepkohdlnjonchnal
 
 
-• Cookie AutoDelete
+• Cookie AutoDelete (Clear cookie automatically)
 
 https://chrome.google.com/webstore/detail/cookie-autodelete/fhcgjolkccmbidfldomjliifgaodjagh
 
 
-• Tampermonkey
+• Tampermonkey (Automate Chrome with JavaScript/UserScript)
 
 https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo
 
