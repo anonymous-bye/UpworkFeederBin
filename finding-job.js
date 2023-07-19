@@ -18,6 +18,9 @@ this.newJobsPolling = setInterval((() => {
 	}
 }), 15000);
 
+document.querySelector("[data-test=announcements]").remove();
+document.querySelector("[data-test=freelancer-tasks-section]").remove();
+
 let styleSheet = document.createElement("style");
 styleSheet.innerText = `
 	[data-test=job-tile-list]>section{
@@ -118,6 +121,7 @@ window.checkAll = function () {
 		buttonRecover.className = "up-btn up-btn-circle up-btn-default up-btn-z"
 		buttonRecover.style.cssText = "bottom: 2rem;right: 5.5rem;"
 		buttonRecover.innerText = "☀";
+		buttonRecover.title = "Recover transparency";
 		buttonRecover.onclick = function (e) {
 			e.stopPropagation();
 			sectionElement.style.opacity = "1";
@@ -128,6 +132,7 @@ window.checkAll = function () {
 		buttonDismiss.className = "up-btn up-btn-circle up-btn-default up-btn-z"
 		buttonDismiss.style.cssText = "bottom: 2rem;right: 2rem;"
 		buttonDismiss.innerText = "🌙";
+		buttonDismiss.title = "Make transparent";
 		buttonDismiss.onclick = function (e) {
 			e.stopPropagation();
 			sectionElement.style.opacity = ".5";
@@ -138,6 +143,7 @@ window.checkAll = function () {
 		buttonVisited.className = "up-btn up-btn-circle up-btn-default up-btn-z"
 		buttonVisited.style.cssText = "bottom: 2rem;right: -1.5rem;font-size: 1rem;"
 		buttonVisited.innerText = "✔️";
+		buttonVisited.title = "Add to browser history and make the link ':visited'";
 		buttonVisited.onclick = function (e) {
 			e.stopPropagation();
 			var current_url = location.href;
@@ -147,9 +153,10 @@ window.checkAll = function () {
 		}
 		sectionElement.appendChild(buttonVisited);
 
-		let buttonToogle = document.createElement("button");
-		buttonToogle.className = "up-btn up-btn-circle up-btn-default up-btn-z up-btn-z-toggle"
-		buttonToogle.onclick = function (e) {
+		let buttonToggle = document.createElement("button");
+		buttonToggle.className = "up-btn up-btn-circle up-btn-default up-btn-z up-btn-z-toggle"
+		buttonToggle.title = "Toggle collapse (Click with CTRL to remove itself)";
+		buttonToggle.onclick = function (e) {
 			e.stopPropagation();
 			if (e.ctrlKey) {
 				sectionElement.remove();
@@ -159,7 +166,7 @@ window.checkAll = function () {
 				sectionElement.classList.add("collapsed");
 			}
 		}
-		sectionElement.appendChild(buttonToogle);
+		sectionElement.appendChild(buttonToggle);
 
 		let jobTitle = sectionElement.querySelector(".job-tile-title .up-n-link").innerText.toLowerCase();
 		if (!jobTitle.includes("web") && (jobTitle.includes("android") || jobTitle.includes("iphone")))

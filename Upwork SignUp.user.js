@@ -596,12 +596,7 @@ const HOME_URL=`${SERVER_URL}/api/v2/account/history/today`;
                     //     }
                     //     await new Promise(r => setTimeout(r, 1000));
                     // }
-                    if(DEBUG_MODE){
-                        alertMessage(`$$$ Uploading photo...`);
-                        exitTimeout=-1;
-                    }else{
-                        alertMessage(`Uploading photo...`);
-                    }
+                    alertMessage(`Uploading photo...`);
                     while (!document.querySelectorAll("button.fe-upload-btn.upload-btn img").length) {
                         let inputFileUpload=document.querySelector("input[type=file][name=imageUpload]");
                         if(!inputFileUpload){
@@ -678,7 +673,7 @@ const HOME_URL=`${SERVER_URL}/api/v2/account/history/today`;
                     console.log(`Auto Click Next on '${location.pathname}'`);
                 }
             } else if (location.pathname.endsWith('/nx/create-profile/submit')) {
-                [...document.querySelectorAll("button")].filter(a => a.innerText.includes("Submit profile")).forEach(a => a.click());
+                [...document.querySelectorAll("button")].filter(a => a.innerText.includes("Submit profile"))[0]?.click();
             } else if (location.pathname.endsWith('/nx/create-profile/finish')) {
                 exitTimeout=10;
                 let fixSettingResult=await fixNotificationSetting() && await fixMembershipSetting() && await fixVisibilityPrivate() && await fixExperienceLevel();

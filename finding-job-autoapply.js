@@ -10,9 +10,6 @@ window.CHANNELS = [2, 3];
 window.CHANNEL_INDEX = 0;
 window.AUTO_INTERVAL = 5000;
 
-window.since_id = window.localStorage.getItem("since_id") || window.since_id || 0;
-window.job_ts = window.job_ts || 0;
-
 function getNextChannel() {
 	let channel = window.CHANNELS[window.CHANNEL_INDEX];
 	window.CHANNEL_INDEX = (window.CHANNEL_INDEX + 1) % window.CHANNELS.length;
@@ -264,112 +261,105 @@ window.setTimeout(async () => {
 		let t = new Date().getTime();
 		window["last_t"] = t;
 		window[t] = t;
+
+		window.since_id = window.since_id || 0;
+		window.job_ts = window.job_ts || 0;
+
 		while (window[t]) {
-			if (!window.since_id) {
-				console.log(`[${new Date().toLocaleTimeString()}]  since_id = ${window.since_id}`);
-			} else {
-				if (window.localStorage.getItem("since_id") != window.since_id) {
-					console.log(`[${new Date().toLocaleTimeString()}]  set since_id = ${window.since_id}`);
-					window.localStorage.setItem("since_id", window.since_id);
+			try {
+				const response0 = await fetch(`https://www.upwork.com/ab/find-work/api/feeds/saved-searches?since_id=${window.since_id}&job_ts=${window.job_ts}&paging=0%3B0`, {
+					"headers": {
+						"x-odesk-user-agent": "oDesk LM",
+						"x-requested-with": "XMLHttpRequest",
+						"x-upwork-accept-language": "en-US"
+					},
+					"method": "GET",
+					"mode": "cors",
+					"credentials": "include"
+				});
+				if (response0.status == 401) {
+					console.log(`[${new Date().toLocaleTimeString()}]  Opening upwork page for 401 Error...`);
+					let newTab = window.open('https://www.upwork.com/nx/find-work/', '_blank');
+					await new Promise(resolve => setTimeout(resolve, window.AUTO_INTERVAL));
+					newTab && newTab.close();
+					continue;
 				}
-				try {
-					const response0 = await fetch(`https://www.upwork.com/ab/find-work/api/feeds/saved-searches?since_id=${window.since_id}&job_ts=${window.job_ts}&paging=0%3B0`, {
-						"headers": {
-							"x-odesk-user-agent": "oDesk LM",
-							"x-requested-with": "XMLHttpRequest",
-							"x-upwork-accept-language": "en-US"
-						},
-						"method": "GET",
-						"mode": "cors",
-						"credentials": "include"
-					});
-					if (response0.status == 401) {
-						console.log(`[${new Date().toLocaleTimeString()}]  Opening upwork page for 401 Error...`);
-						let newTab = window.open('https://www.upwork.com/nx/find-work/', '_blank');
-						await new Promise(resolve => setTimeout(resolve, window.AUTO_INTERVAL));
-						newTab && newTab.close();
-						continue;
+				if (!response0.ok)
+					throw new Error(`Bad response0: ${response0.status}`);
+				const data0 = await response0.json();
+				if (!window.job_ts) {
+					if (data0.paging && data0.paging.resultSetTs) {
+						window.job_ts = data0.paging.resultSetTs;
+						console.log(`[${new Date().toLocaleTimeString()}]  job_ts = ${window.job_ts}`);
 					}
-					if (!response0.ok)
-						throw new Error(`Bad response0: ${response0.status}`);
-					const data0 = await response0.json();
-					if (!window.job_ts) {
-						if (data0.paging && data0.paging.resultSetTs) {
-							window.job_ts = data0.paging.resultSetTs;
-							console.log(`[${new Date().toLocaleTimeString()}]  job_ts = ${window.job_ts}`);
-						}
-					} else if (data0.paging && data0.paging.total) {
-						console.log(`pagingTotal = ${data0.paging.total},  since_id = ${window.since_id},  job_ts = ${window.job_ts}`);
-						for (let i = tryCount = 0; tryCount < 10; tryCount++) {
-							if (!window.since_id || !window.job_ts) break;
-							await new Promise(resolve => setTimeout(resolve, 1000));
-							const response20 = await fetch(`https://www.upwork.com/ab/find-work/api/feeds/saved-searches?since_id=${window.since_id}&job_ts=${window.job_ts}&paging=0%3B50`, {
-								"headers": {
-									"x-odesk-user-agent": "oDesk LM",
-									"x-requested-with": "XMLHttpRequest",
-									"x-upwork-accept-language": "en-US"
-								},
-								"method": "GET",
-								"mode": "cors",
-								"credentials": "include"
-							});
-							if (!response20.ok)
-								throw new Error(`Bad response20: ${response20.status}`);
-							const data20 = await response20.json();
-							let resultsCount = data20.results.length;
-							if (resultsCount > 0) {
-								window.job_ts = data20.paging.resultSetTs || window.job_ts;
-								if (data20.results[0].recno) {
-									window.since_id = data20.results[0].recno;
-									window.localStorage.setItem("since_id", window.since_id);
-								}
-								for (let i = 0; i < resultsCount; i++) {
-									const el = data20.results[i];
-									const countryName = el.client.location.country;
-									if (window.checkCountryBan(countryName))
-										continue;
-									if (el.hourlyBudget.min && el.hourlyBudget.min < 10 || el.hourlyBudget.max && el.hourlyBudget.max < 20)
-										continue;
-									if (el.amount.amount && el.amount.amount < 1500)
-										continue;
-									const jobTitle = el.title;
-									const jobDescription = el.description;
-									const jobId = el.ciphertext;
-									const proposalTypes = window.getProposalTypes(jobTitle, jobDescription, true);
-									if (proposalTypes && proposalTypes.length) {
-										const summaryResponse = await fetch(`/job-details/jobdetails/api/job/${jobId}/summary`, {
-											headers: {
-												"x-requested-with": "XMLHttpRequest",
-											},
-										});
-										if (summaryResponse.status == 403 || summaryResponse.status == 404) continue;
-										const summaryData = await summaryResponse.json();
-										const countryFromSummary = summaryData.buyer.location.country;
-										const questionCount = summaryData.job.questions.length;
-										if (window.checkCountryBan(countryFromSummary)) {
-											console.log(`[${new Date().toLocaleTimeString()}]  ${jobId} / ${countryFromSummary} / ${jobTitle}`);
-										} else if (questionCount) {
-											console.log(`[${new Date().toLocaleTimeString()}]  ${jobId} / +${questionCount} questions / ${jobTitle}`);
-										} else {
-											let channel = getNextChannel();
-											for (let i = 0; i < proposalTypes.length; i++) {
-												const proposalType = proposalTypes[i];
-												await submitProposal(jobId, countryName, proposalType.profile, proposalType.proposalId, undefined, jobTitle, countryFromSummary, proposalType.priority, proposalType.channel || channel, 1);
-											}
+				} else if (data0.paging && data0.paging.total) {
+					console.log(`pagingTotal = ${data0.paging.total},  since_id = ${window.since_id},  job_ts = ${window.job_ts}`);
+					for (let i = tryCount = 0; tryCount < 10; tryCount++) {
+						await new Promise(resolve => setTimeout(resolve, 1000));
+						const response20 = await fetch(`https://www.upwork.com/ab/find-work/api/feeds/saved-searches?since_id=${window.since_id}&job_ts=${window.job_ts}&paging=0%3B50`, {
+							"headers": {
+								"x-odesk-user-agent": "oDesk LM",
+								"x-requested-with": "XMLHttpRequest",
+								"x-upwork-accept-language": "en-US"
+							},
+							"method": "GET",
+							"mode": "cors",
+							"credentials": "include"
+						});
+						if (!response20.ok)
+							throw new Error(`Bad response20: ${response20.status}`);
+						const data20 = await response20.json();
+						let resultsCount = data20.results.length;
+						if (resultsCount > 0) {
+							window.job_ts = data20.paging.resultSetTs || window.job_ts;
+							if (data20.results[0].recno)
+								window.since_id = data20.results[0].recno;
+							for (let i = 0; i < resultsCount; i++) {
+								const el = data20.results[i];
+								const countryName = el.client.location.country;
+								if (window.checkCountryBan(countryName))
+									continue;
+								if (el.hourlyBudget.min && el.hourlyBudget.min < 10 || el.hourlyBudget.max && el.hourlyBudget.max < 20)
+									continue;
+								if (el.amount.amount && el.amount.amount < 1500)
+									continue;
+								const jobTitle = el.title;
+								const jobDescription = el.description;
+								const jobId = el.ciphertext;
+								const proposalTypes = window.getProposalTypes(jobTitle, jobDescription, true);
+								if (proposalTypes && proposalTypes.length) {
+									const summaryResponse = await fetch(`/job-details/jobdetails/api/job/${jobId}/summary`, {
+										headers: {
+											"x-requested-with": "XMLHttpRequest",
+										},
+									});
+									if (summaryResponse.status == 403 || summaryResponse.status == 404) continue;
+									const summaryData = await summaryResponse.json();
+									const countryFromSummary = summaryData.buyer.location.country;
+									const questionCount = summaryData.job.questions.length;
+									if (window.checkCountryBan(countryFromSummary)) {
+										console.log(`[${new Date().toLocaleTimeString()}]  ${jobId} / ${countryFromSummary} / ${jobTitle}`);
+									} else if (questionCount) {
+										console.log(`[${new Date().toLocaleTimeString()}]  ${jobId} / +${questionCount} questions / ${jobTitle}`);
+									} else {
+										let channel = getNextChannel();
+										for (let i = 0; i < proposalTypes.length; i++) {
+											const proposalType = proposalTypes[i];
+											await submitProposal(jobId, countryName, proposalType.profile, proposalType.proposalId, undefined, jobTitle, countryFromSummary, proposalType.priority, proposalType.channel || channel, 1);
 										}
 									}
 								}
-								break;
-							} else {
-								console.log(`resultsCount = ${resultsCount}, try = ${++tryCount}`)
 							}
+							break;
+						} else {
+							console.log(`resultsCount = ${resultsCount}, try = ${++tryCount}`)
 						}
-					} else {
-						console.log(`pagingTotal = ${data0.paging.total},  since_id = ${window.since_id},  job_ts = ${window.job_ts}`);
 					}
-				} catch (error) {
-					console.warn('Error:', error);
+				} else {
+					console.log(`pagingTotal = ${data0.paging.total},  since_id = ${window.since_id},  job_ts = ${window.job_ts}`);
 				}
+			} catch (error) {
+				console.warn('Error:', error);
 			}
 			await new Promise(resolve => setTimeout(resolve, window.AUTO_INTERVAL));
 		}
@@ -395,7 +385,7 @@ window.checkTitleBan = function (jobTitleLowerCase) {
 		" zoho ", " youtube ", " tiktok ", " reddit ", " spotify ", " facebook ", " linkedin ", " twitter ", " instagram ", " pinterest ", " whatsapp ", /*" social",*/ " dating ",
 		" airtable ", " notion ", " zapier ", " salesforce ", " squarespace ", " zenddesk ", " hubspot ",
 		" filemaker ", " sharepoint ", " moodle ", " odoo ", " kajabi ", " thinkific ",
-		" drupal ", " graphic design", " graphite design",
+		" drupal ", " graphic design", " graphite design", "webassembly", "web assembly",
 		" devops ", " dev ops ", " kubernetes ", " voip ", " streaming ", " mulesoft ", " gsap ",
 		" tradingview ", " pinescript ", " metatrader ", " mt4 ", " mt5 ",
 		" framer ", " terraform ", " quickbooks ", " monday.com ", " playwright ",
@@ -450,7 +440,7 @@ window.getProposalTypes = function (jobTitle, jobDescription, checkBan) {
 		return [
 			{ preference: 1, title: "django", profile: "wp-django", proposalId: "django-flask-1", channel: 0, priority: 1 }
 		];
-	if (` ${jobTitle} `.includes(" ruby ") || ` ${jobTitle} `.includes(" rales "))
+	if (` ${jobTitle} `.includes(" ruby ") || ` ${jobTitle} `.includes(" rails "))
 		return [
 			{ preference: 1, title: "ruby on rails", profile: "laravel-ruby", proposalId: "ruby-1", channel: 0, priority: 1 }
 		];
@@ -551,10 +541,10 @@ window.getProposalTypes = function (jobTitle, jobDescription, checkBan) {
 				];
 		}
 		return [
-			{ preference: 1, title: "fullstack", profile: "wp-django", proposalId: "full-stack-5", channel: 0, priority: 4 },
-			// { preference: 2, title: "fullstack", profile: "node-php", proposalId: "full-stack-2", channel: 0, priority: 3 },
-			{ preference: 1, title: "fullstack", profile: "laravel-ruby", proposalId: "full-stack-1", channel: 0, priority: 4 },
-			// { preference: 2, title: "fullstack", profile: "javascript", proposalId: "full-stack-2", channel: 0, priority: 3 },
+			// { preference: 1, title: "fullstack", profile: "wp-django", proposalId: "full-stack-5", channel: 0, priority: 4 },
+			{ preference: 2, title: "fullstack", profile: "node-php", proposalId: "full-stack-2", channel: 0, priority: 3 },
+			// { preference: 1, title: "fullstack", profile: "laravel-ruby", proposalId: "full-stack-1", channel: 0, priority: 4 },
+			{ preference: 2, title: "fullstack", profile: "javascript", proposalId: "full-stack-1", channel: 0, priority: 3 },
 		];
 	}
 }

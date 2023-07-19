@@ -1,11 +1,11 @@
 
 window.signupInfo = {
-    email: `cv${emailNumber}@metagon.online`,
-    // email: `dv${emailNumber}@valv.sbs`,
+    // email: `cv${emailNumber}@metagon.online`,
+    email: `dv${emailNumber}@valv.sbs`,
     password: "qweQWE123!@#`",
     category: "ecommerce",
-    emailUsername: "admin@metagon.online",
-    // emailUsername: "valloonupwork@valv.sbs",
+    // emailUsername: "admin@metagon.online",
+    emailUsername: "valloonupwork@valv.sbs",
     emailPassword: "qweQWE123!@#`",
     firstName: "Danyil",
     lastName: "Kovalov",
@@ -27,7 +27,7 @@ function setProfile(t) {
         "address": null
     };
     t.phoneNumber = "665#######".replace(/#/g, () => Math.floor(Math.random() * 10));
-    t.rate = 25;
+    t.rate = 15;
     t.englishLevel = "natl";
     t.employmentHistory = [
         {

@@ -27,7 +27,7 @@ function setProfile(t) {
 		"address": null
 	};
 	t.phoneNumber = "412######".replace(/#/g, () => Math.floor(Math.random() * 10));
-	t.rate = 25;
+	t.rate = 30;
 	t.englishLevel = "natl";
 	t.employmentHistory = [
 		{
