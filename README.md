@@ -9,9 +9,7 @@ https://drive.google.com/drive/folders/1vKEqV0ClsVHsC5T2-oJtxr76zW6KgTLN
 
  
 
-======================================================================
-Chrome extensions
-======================================================================
+##Chrome extensions
 • Keyboard shortcuts to close Chrome tabs (Not necessary in this version. Only used on legacy version.)
 https://chrome.google.com/webstore/detail/keyboard-shortcuts-to-clo/fipfgiejfpcdacpjepkohdlnjonchnal
 
@@ -23,9 +21,7 @@ https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldm
 
 
 
-======================================================================
-Table design for "tbl_profile"
-======================================================================
+##Table design for "tbl_profile"
 id: it is the profile id. look at my profiles as sample
 symbol: it is used on manual bid. it is a simple letter or word equivalent with id. it is also unique
 title: only used for people to understand. not used in the code.
