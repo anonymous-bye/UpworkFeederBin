@@ -14,7 +14,7 @@ https://drive.google.com/drive/folders/1vKEqV0ClsVHsC5T2-oJtxr76zW6KgTLN
 
 ## Chrome extensions
 
-• Keyboard shortcuts to close Chrome tabs (Not necessary in this version. Only used on legacy version)
+• Keyboard shortcuts to close Chrome tabs (Not necessary in this version. Only used on legacy version.)
 
 https://chrome.google.com/webstore/detail/keyboard-shortcuts-to-clo/fipfgiejfpcdacpjepkohdlnjonchnal
 
