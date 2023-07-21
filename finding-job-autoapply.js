@@ -191,9 +191,9 @@ window.setTimeout(async () => {
 						let budgetMin = 0, budgetMax = 0;
 						if (budget.split("$")[1]) budgetMin = parseInt(budget.split("$")[1]);
 						if (budget.split("$")[2]) budgetMax = parseInt(budget.split("$")[2]);
-						if (budgetMin && budgetMin < 10 || budgetMax && budgetMax < 20)
+						if (budgetMin && budgetMin < 10 && !budgetMax || budgetMax && budgetMax < 15)
 							continue;
-						if (budget.includes("Fixed") && budgetMin && budgetMin < 1500)
+						if (budget.includes("Fixed") && budgetMin && budgetMin < 500)
 							continue;
 
 						const jobTitle = sectionElement.querySelector(".job-tile-title .up-n-link").innerText.trim();
@@ -401,7 +401,7 @@ window.getProposalTypes = function (jobTitle, jobDescription, checkBan) {
 		console.log("jobTitle is null.");
 		return;
 	}
-	jobTitle = jobTitle.replaceAll(/[\,\/\-\~\!\?–]/g, " ").replaceAll(/\s\s+/g, " ").toLowerCase();
+	jobTitle = jobTitle.replaceAll(/[\,\/\-\~\!\?–]/g, " ").replace(/\.+$/, "").replaceAll(/\s\s+/g, " ").toLowerCase();
 	if (checkBan && checkTitleBan(jobTitle)) return;
 	if (jobTitle.includes("webflow"))
 		return [
@@ -494,7 +494,7 @@ window.getProposalTypes = function (jobTitle, jobDescription, checkBan) {
 		|| jobTitle.includes("dashboard") || jobTitle.includes("landing") || jobTitle.includes("portal") ||
 		jobTitle.includes("backend") || jobTitle.includes("back end") || jobTitle.includes("fullstack") || jobTitle.includes("full stack")) {
 		if (jobDescription) {
-			jobDescription = jobDescription.replaceAll(/[\,\/\-\~\!\?–]/g, " ").replaceAll(/\s\s+/g, " ").toLowerCase();
+			jobDescription = jobDescription.replaceAll(/[\,\/\-\~\!\?–]/g, " ").replace(/\.+$/, "").replaceAll(/\s\s+/g, " ").toLowerCase();
 			if (jobDescription.includes("webflow"))
 				return [
 					{ preference: 1, title: "webflow", profile: "webflow-2", proposalId: "webflow-8", channel: 0, priority: 3 },
@@ -542,9 +542,9 @@ window.getProposalTypes = function (jobTitle, jobDescription, checkBan) {
 		}
 		return [
 			// { preference: 1, title: "fullstack", profile: "wp-django", proposalId: "full-stack-5", channel: 0, priority: 4 },
-			{ preference: 2, title: "fullstack", profile: "node-php", proposalId: "full-stack-2", channel: 0, priority: 3 },
-			// { preference: 1, title: "fullstack", profile: "laravel-ruby", proposalId: "full-stack-1", channel: 0, priority: 4 },
-			{ preference: 2, title: "fullstack", profile: "javascript", proposalId: "full-stack-1", channel: 0, priority: 3 },
+			// { preference: 2, title: "fullstack", profile: "node-php", proposalId: "full-stack-2", channel: 0, priority: 3 },
+			{ preference: 1, title: "fullstack", profile: "laravel-ruby", proposalId: "full-stack-1", channel: 0, priority: 4 },
+			{ preference: 2, title: "fullstack", profile: "javascript", proposalId: "full-stack-2", channel: 0, priority: 3 },
 		];
 	}
 }
@@ -568,11 +568,11 @@ window.submitProposal = async function (jobId, countryName, profile, proposalId,
 		return false;
 	}
 	if (countryName == "United States")
-		priority += 30;
+		priority += 3;
 	else if (countryName == "Canada" || countryName == "Australia" || countryName == "Qutar")
-		priority += 20;
+		priority += 2;
 	else if (countryName == "United Kingdom" || countryName == "Switzerland" || countryName == "Sweden")
-		priority += 10;
+		priority += 1;
 	console.log(`%c-- sending auto apply: ${proposalId} / ${jobId} / ${channel}`, 'color: #fe40ff');
 	var proposalJson = {
 		boost: 50,
@@ -869,11 +869,15 @@ I am a highly skilled full-stack developer with extensive experience in React/Ne
 As a full-stack developer, I have extensive experience in Backend and frontend development, database management, cloud management, web hosting, SEO and so on. I am confident in my ability to be helpful for any kind of your work.
 
 Here are some of my past projects:
+- Grow Builder
 https://www.zuut.co    (React + Next + Node + Express + MaterialUI + Firebase + Vercel)
+- Office Rent
 https://maison.work    (React + Next + Node + Express + MaterialUI + Heroku)
-https://zohr.com    (React + Bootstrap + Heroku)
+- Company/Service Portal
 https://ndb.money    (React + Gatsby + AWS Amplify)
 https://ndb.technology    (React + Gatsby + AWS Amplify)
+- Token Sale/Auction Service
+https://www.nyyu.io    (Spring Boot + React + Gatsby + GraphQL + Oracle Database + AWS)
 
 I am a dedicated and self-motivated professional with a strong attention to detail. I am also a good communicator and can collaborate effectively with remote teams.
 I look forward to the possibility of working with you.
@@ -885,12 +889,18 @@ I am a highly skilled full-stack developer with extensive experience in React/Ne
 As a full-stack developer, I have extensive experience in Backend and frontend development, database management, cloud management, web hosting, SEO and so on. I am confident in my ability to be helpful for any kind of your work.
 
 Here are some of my past projects:
-https://www.zuut.co    (Express + React + Next + MaterialUI + Firebase + Vercel)
-https://maison.work    (Express + React + Next + MaterialUI + Heroku)
-https://zohr.com    (React + Bootstrap + Heroku)
+- Grow Builder
+https://www.zuut.co    (React + Next + Node + Express + MaterialUI + Firebase + Vercel)
+- Office Rent
+https://maison.work    (React + Next + Node + Express + MaterialUI + Heroku)
+- Company/Service Portal
 https://ndb.money    (React + Gatsby + AWS Amplify)
 https://ndb.technology    (React + Gatsby + AWS Amplify)
+- Token Sale/Auction Service
+https://www.nyyu.io    (Spring Boot + React + Gatsby + GraphQL + Oracle Database + AWS)
+- NFT Mint
 https://studio.manifold.xyz    (Vue + Tailwind CSS + Web3)
+- NFT Game
 https://dragonkart.com    (Vue + Nuxt + Node + Express + Tailwind CSS + Web3)
 
 I am a dedicated and self-motivated professional with a strong attention to detail. I am also a good communicator and can collaborate effectively with remote teams.
@@ -1185,25 +1195,23 @@ I would be delighted to discuss your project further and showcase my portfolio o
 Best regards`,
 
 
-	"webflow-8": `Hi. I am an experience developer with a strong background in Shopify development and extensive experience in building ecommerce websites, I possess the skills necessary to create visually appealing, user-friendly, and high-performing online stores. I am proficient in customizing Shopify themes, implementing payment gateways, and optimizing the overall shopping experience for customers.
+	"webflow-8": `Hi. 👍
+Very excited to submit my proposal for your Webflow project. As a webflow specialist, I have extensive experience in creating visually stunning and highly functional websites using this platform.
 
-Throughout my career, I have successfully completed numerous Shopify projects, earning positive feedback from clients for my technical expertise, attention to detail, and ability to meet project deadlines. I am dedicated to delivering exceptional quality work while ensuring the highest level of customer satisfaction.
+My approach to web design is centered around understanding your unique needs and creating a custom solution that exceeds your expectations. Whether you need a simple landing page or a complex e-commerce site, I have the expertise to deliver a website that not only looks great but also performs well.
 
-Effective communication is paramount, and I prioritize regular and transparent communication with my clients. I am responsive to feedback, seek clarification when needed, and provide progress updates to ensure we are aligned throughout the development process.
+I am excellent in Responsive Design, modern frontend development and SEO. And also experienced in Figma.
 
-I am well-versed in ecommerce best practices, including SEO optimization, inventory management, and integration with third-party applications. I am also experienced in migrating existing stores to Shopify and providing ongoing maintenance and support.
+In addition to my technical skills, I am also committed to providing exceptional customer service. I understand the importance of clear communication and timely delivery, and I always strive to exceed my clients' expectations.
 
-You can check my past Shopify projects here:
-- Bambinos Baby Food Shop & Delivery
-https://bambinosbabyfood.com    (Shopify)
-- Poster Design
-https://racedayprints.com    (Shopify + Printful + PageFly)
+Here are some of my past Webflow projects:
+https://visitDays.com
+https://usernurture.com
+https://goodbits.io
+https://www.cymonz.com
 
-I take great pride in my problem-solving skills and attention to detail, allowing me to identify and resolve issues efficiently. I am committed to delivering projects that meet your specific requirements and exceed your expectations.
-
-I would be delighted to discuss your project further and showcase my portfolio of successful Shopify and ecommerce projects. Thank you for considering my proposal, and I look forward to the opportunity to collaborate with you.
-
-Best regards`,
+I look forward to the opportunity to work with you on your Webflow project.
+Thank you.`,
 
 
 	"scraping-9": `Hi. I am an experienced web developer and web scraper. As an experienced programmer with a deep understanding of web protocol and data extraction, I am confident in my ability to meet and exceed your expectations for this project.

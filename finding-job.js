@@ -1,20 +1,36 @@
 
 window.minAutoLoadNewJobs = 1;
-window.maxJobsCount = 50;
+window.maxJobsListingCount = 50;
 
-this.newJobsPolling = setInterval((() => {
+function searchTree(element, tag) {
+	if (element.$vnode.tag.includes(tag)) {
+		return element;
+	} else if (element.$children != null) {
+		let i;
+		let result = null;
+		for (i = 0; result == null && i < element.$children.length; i++) {
+			result = searchTree(element.$children[i], tag);
+		}
+		return result;
+	}
+	return null;
+}
+
+let vueEl = searchTree(window.$nuxt.$children[0], 'FeedMy');
+window.clearInterval(vueEl.newJobsPolling);
+vueEl.newJobsPolling = setInterval((() => {
 	document.querySelector("[data-test=job-tile-list]>section:first-of-type").style.borderTop = "6px dashed #108a0070"
 	'8px dashed #108a0080';
 	// if (this.newJobsCount >= window.minAutoLoadNewJobs) {
 	// 	console.log("%c-- auto loading new jobs: " + this.newJobsCount, 'color: #0dcaf0');
 	// 	document.querySelector("[data-test=newer-jobs-button]").click()
 	// } else
-	if (this.newJobsCount > 0) {
-		console.log(`%c[${new Date().toLocaleTimeString()}] updating new jobs count: ${this.newJobsCount}`, 'color: #0dcaf0');
-		this.updateNewJobsCount(this.currentTopic);
+	if (vueEl.newJobsCount > 0) {
+		console.log(`%c[${new Date().toLocaleTimeString()}] updating new jobs count: ${vueEl.newJobsCount}`, 'color: #0dcaf0');
+		vueEl.updateNewJobsCount(vueEl.currentTopic);
 	} else {
-		console.log(`updating:  since_id = ${window.$nuxt.$store._vm.$data.$$state['feedMy']['jobs'][0].recno},  job_ts = ${window.$nuxt.$store._vm.$data.$$state['feedMy']['jobs'][0].jobTs}`);
-		this.updateNewJobsCount(this.currentTopic);
+		let job0 = window.$nuxt.$store._vm.$data.$$state.feedMy.jobs[0];
+		console.log(`updating:  since_id = ${job0.recno},  job_ts = ${job0.jobTs}`);
 	}
 }), 15000);
 
@@ -78,7 +94,7 @@ styleSheet.innerText = `
 	}`;
 document.head.appendChild(styleSheet);
 
-typeof (zInterval) !== "undefined" && clearInterval(zInterval);
+window.zInterval && clearInterval(unsafeWindow.zInterval);
 Array.from(document.querySelectorAll("[data-test=job-tile-list]>section.v-checked")).forEach(
 	(el) => el.classList.remove('v-checked')
 );
@@ -88,9 +104,9 @@ window.checkAll = function () {
 		let newJobsCount = window.__NUXT__.state.feedMy.newJobsCount;
 		var timeout = (parseInt(newerJobsButton.dataset.timeout) || 0) + 1;
 		newerJobsButton.dataset.timeout = timeout;
-		timeoutMinites = Math.floor(timeout / 60);
+		let timeoutMinites = Math.floor(timeout / 60);
 		if (timeoutMinites < 10) timeoutMinites = "0" + timeoutMinites;
-		timeoutSeconds = timeout % 60;
+		let timeoutSeconds = timeout % 60;
 		if (timeoutSeconds < 10) timeoutSeconds = "0" + timeoutSeconds;
 		newerJobsButton.childNodes[1].textContent = `${newJobsCount} new job(s) ... [${timeoutMinites}:${timeoutSeconds}]`
 		if (!newJobsCount.disabled && newJobsCount >= window.minAutoLoadNewJobs) {
@@ -100,9 +116,9 @@ window.checkAll = function () {
 	}
 
 	let allSections = document.querySelectorAll("[data-test=job-tile-list]>section");
-	if (allSections.length > window.maxJobsCount) {
+	if (allSections.length > window.maxJobsListingCount) {
 		let deletecCount = 0;
-		for (let i = window.maxJobsCount; i < allSections.length; i++) {
+		for (let i = window.maxJobsListingCount; i < allSections.length; i++) {
 			allSections[i].remove();
 			deletecCount++;
 		}
@@ -155,7 +171,7 @@ window.checkAll = function () {
 
 		let buttonToggle = document.createElement("button");
 		buttonToggle.className = "up-btn up-btn-circle up-btn-default up-btn-z up-btn-z-toggle"
-		buttonToggle.title = "Toggle collapse (Click with CTRL to remove itself)";
+		buttonToggle.title = "Toggle collapse (Right click or click with CTRL to remove itself)";
 		buttonToggle.onclick = function (e) {
 			e.stopPropagation();
 			if (e.ctrlKey) {
@@ -165,6 +181,10 @@ window.checkAll = function () {
 			} else {
 				sectionElement.classList.add("collapsed");
 			}
+		}
+		buttonToggle.oncontextmenu = function (e) {
+			e.preventDefault();
+			sectionElement.remove();
 		}
 		sectionElement.appendChild(buttonToggle);
 
@@ -208,5 +228,5 @@ window.checkAll = function () {
 	console.log(zListLength);
 	return zListLength;
 }
-window.zInterval = setInterval(checkAll, 3000);
+window.zInterval = setInterval(window.checkAll, 3000);
 

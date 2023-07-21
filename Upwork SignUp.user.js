@@ -106,32 +106,32 @@ const HOME_URL=`${SERVER_URL}/api/v2/account/history/today`;
         return null;
     }
 
+    let exitTimeout=-1;
     if(!location.href.startsWith(SERVER_URL)){
         let linkHome = document.createElement("a");
         linkHome.href=HOME_URL;
         linkHome.style.cssText = "position: fixed;top: 0rem;right: 0rem;text-decoration: underline;z-index: 9999;";
         linkHome.innerText = HOME_URL;
         document.body.appendChild(linkHome);
-    }
 
-    let exitTimeout=-1;
-    (async function(){
-        while (true) {
-            if(exitTimeout>=0){
-                if(!alertBig(exitTimeout)){
-                    if(exitTimeout==0){
-                        location.href=HOME_URL;
-                        await new Promise(resolve => setTimeout(resolve, 30000));
-                        return;
+        (async function(){
+            while (true) {
+                if(exitTimeout>=0){
+                    if(!alertBig(exitTimeout)){
+                        if(exitTimeout==0){
+                            location.href=HOME_URL;
+                            await new Promise(resolve => setTimeout(resolve, 30000));
+                            return;
+                        }
+                        exitTimeout--;
                     }
-                    exitTimeout--;
+                }else{
+                    alertBig("_");
                 }
-            }else{
-                alertBig("_");
+                await new Promise(resolve => setTimeout(resolve, 1000));
             }
-            await new Promise(resolve => setTimeout(resolve, 1000));
-        }
-    })();
+        })();
+    }
 
     async function runScript(){
         let signupData=GM_getValue("signupData");
@@ -251,6 +251,7 @@ const HOME_URL=`${SERVER_URL}/api/v2/account/history/today`;
     async function reportSignupResult(signupInfo, profileTitle, state){
         try {
             let ipAddress=GM_getValue("ipAddress");
+            state ??= signupInfo.state;
             const response = await fetch(`${SERVER_URL}/api/v2/account/${signupInfo.email}/new`, {
                 method: 'POST',
                 headers: {
@@ -475,7 +476,8 @@ const HOME_URL=`${SERVER_URL}/api/v2/account/history/today`;
                     location.href = data.url;
                     return;
                 }else{
-                    console.log("Email not verified");
+                    console.log("Email not verified", data.error);
+                    alertMessageNext(`Email not verified: ${data.error}`);
                 }
             } catch (error) {
                 console.warn('Error:', error);
@@ -618,16 +620,9 @@ const HOME_URL=`${SERVER_URL}/api/v2/account/history/today`;
                         obj.target = { files: [file] };
                         let elUpCImageCrop = searchTree(unsafeWindow.$nuxt.$children[0], 'UpCImageCrop');
                         if(!elUpCImageCrop){
-                            if(DEBUG_MODE){
-                                alertMessage("$$$ elUpCImageCrop is null");//TODO
-                                document.title=`$$$ elUpCImageCrop is null`;//TODO
-                                await new Promise(r => setTimeout(r, 1000));//TODO
-                                alert("$$$ elUpCImageCrop is null");
-                                return;
-                            }else{
-                                exitTimeout=1;
-                                return;
-                            }
+                            alertMessage("elUpCImageCrop is null");
+                            await new Promise(r => setTimeout(r, 1000));
+                            continue;
                         }
                         elUpCImageCrop.addFile(obj);
                     }catch(error){
