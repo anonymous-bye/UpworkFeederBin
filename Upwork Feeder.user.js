@@ -223,12 +223,12 @@ const CHANNELS = 0;
                     if (emailInput && !emailInput.disabled && loginPasswordCountinueButton && !loginPasswordCountinueButton.disabled) {
                         if ([...document.querySelectorAll("span")].filter(a => a.innerText.includes("Username is incorrect")).length) {
                             alertMessage("Account not exist");
-                            await putApplyState(applyData, "$account-not-exist");
+                            await applyNextEmail(applyData, "$account-not-exist");
                             break;
                         }
                         if([...document.querySelectorAll("[role=alert]")].filter(a => a.innerText.includes("Your account is suspended")).length){
                             alertMessage("Account suspended");
-                            await putApplyState(applyData, "$account-suspended");
+                            await applyNextEmail(applyData, "$account-suspended");
                             break;
                         }
                         emailInput.value = applyData.email;
@@ -237,7 +237,7 @@ const CHANNELS = 0;
                     } else if (passwordInput && !passwordInput.disabled && loginControlContinueButton && !loginControlContinueButton.disabled) {
                         if ([...document.querySelectorAll("span")].filter(a => a.innerText.includes("Password is incorrect")).length) {
                             alertMessage("Wrong password");
-                            await putApplyState(applyData, "$password-invalid");
+                            await applyNextEmail(applyData, "$password-invalid");
                             break;
                         }
                         if (document.querySelectorAll("[role=alert]").length) {
