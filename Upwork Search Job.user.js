@@ -57,8 +57,8 @@ unsafeWindow.maxJobsListingCount = 50;
         }
     }), 15000);
 
-    document.querySelector("[data-test=announcements]").remove();
-    document.querySelector("[data-test=freelancer-tasks-section]").remove();
+    document.querySelector("[data-test=announcements]")?.remove();
+    document.querySelector("[data-test=freelancer-tasks-section]")?.remove();
 
     GM_addStyle(`
 	[data-test=job-tile-list]>section{
