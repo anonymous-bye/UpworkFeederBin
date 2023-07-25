@@ -5,7 +5,7 @@ All installers here (download on your vps)
 <br>
 https://drive.google.com/drive/folders/1SPErMhzaPP9cKkXoG8gWih37yIt-inyj?usp=drive_link
 
-Some hints here (download on your pc)
+Some hints here (videos and screenshots)
 <br>
 https://drive.google.com/drive/folders/1vKEqV0ClsVHsC5T2-oJtxr76zW6KgTLN
 

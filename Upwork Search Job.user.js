@@ -4,7 +4,7 @@
 // @version      23.07.21
 // @description  Upwork Search Job Helper
 // @author       Valloon
-// @match        https://www.upwork.com/nx/find-work/
+// @match        https://www.upwork.com/nx/find-work/*
 // @icon         https://www.upwork.com/favicons.ico
 // @grant        unsafeWindow
 // @grant        GM_addStyle

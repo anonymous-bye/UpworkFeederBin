@@ -20,6 +20,7 @@
 
 
 const SERVER_URL = "http://localhost";
+// const SERVER_URL = "http://web.valloon.me";
 const CHANNELS = 0;
 
 
@@ -221,20 +222,25 @@ const CHANNELS = 0;
                     let loginControlContinueButton = document.querySelector("#login_control_continue");
                     if (emailInput && !emailInput.disabled && loginPasswordCountinueButton && !loginPasswordCountinueButton.disabled) {
                         if ([...document.querySelectorAll("span")].filter(a => a.innerText.includes("Username is incorrect")).length) {
-                            console.log("-- Wrong email");
+                            alertMessage("Account not exist");
                             await putApplyState(applyData, "$account-not-exist");
                             break;
-                        } else {
-                            emailInput.value = applyData.email;
-                            emailInput.dispatchEvent(new Event("input"));
-                            loginPasswordCountinueButton.click();
                         }
+                        if([...document.querySelectorAll("[role=alert]")].filter(a => a.innerText.includes("Your account is suspended")).length){
+                            alertMessage("Account suspended");
+                            await putApplyState(applyData, "$account-suspended");
+                            break;
+                        }
+                        emailInput.value = applyData.email;
+                        emailInput.dispatchEvent(new Event("input"));
+                        loginPasswordCountinueButton.click();
                     } else if (passwordInput && !passwordInput.disabled && loginControlContinueButton && !loginControlContinueButton.disabled) {
                         if ([...document.querySelectorAll("span")].filter(a => a.innerText.includes("Password is incorrect")).length) {
-                            console.log("-- Wrong password");
+                            alertMessage("Wrong password");
                             await putApplyState(applyData, "$password-invalid");
                             break;
-                        }else if (document.querySelectorAll("[role=alert]").length) {
+                        }
+                        if (document.querySelectorAll("[role=alert]").length) {
                             document.querySelector(".not-you").click();
                         } else {
                             passwordInput.value = applyData.password;
@@ -276,8 +282,9 @@ const CHANNELS = 0;
 
             if (checkBreakConfirmed) return true;
             if ([...document.querySelectorAll("[role=alert]")].filter(a => a.innerText.includes("This job is no longer available.")).length
-                || [...document.querySelectorAll("[role=alert]")].filter(a => a.innerText.includes("This job is private. Only freelancers invited by client can view this job.")).length
                 || [...document.querySelectorAll("[role=alert]")].filter(a => a.innerText.includes("This Job posting was removed")).length
+                || [...document.querySelectorAll("[role=alert]")].filter(a => a.innerText.includes("This job is private. Only freelancers invited by client can view this job.")).length
+                || [...document.querySelectorAll("p")].filter(a => a.innerText.includes("This job is private. Only freelancers invited by client can view this job.")).length
                 || [...document.querySelectorAll("p")].filter(a => a.innerText.includes("You can't submit a proposal if you don't meet")).length) {
                 checkBreakConfirmed = true;
                 clearTimeout(scrollToBottomTimeout);
@@ -546,8 +553,4 @@ const CHANNELS = 0;
         exitTimeout=10;
     }
 
-    // const newTab = GM_openInTab("chrome://settings/clearBrowserData");
-    // newTab.addEventListener('load', function() {
-    //     newTab.document.querySelector("body > settings-ui").shadowRoot.querySelector("#main").shadowRoot.querySelector("settings-basic-page").shadowRoot.querySelector("#basicPage > settings-section:nth-child(9) > settings-privacy-page").shadowRoot.querySelector("settings-clear-browsing-data-dialog").shadowRoot.querySelector("#clearBrowsingDataConfirm").click();
-    // });
 })();

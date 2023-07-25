@@ -383,14 +383,14 @@ window.checkTitleBan = function (jobTitleLowerCase) {
 	const banList = [/* " tutor", " teach", " guide", " assist", " consult", " support", " lead", "troubleshoot",*/
 		" android ", " iphone ", " ionic ", " unity ", " unreal ", " swift ", " ios ", " react native ", " reactnative ", " flutter ",
 		" zoho ", " youtube ", " tiktok ", " reddit ", " spotify ", " facebook ", " linkedin ", " twitter ", " instagram ", " pinterest ", " whatsapp ", /*" social",*/ " dating ",
-		" airtable ", " notion ", " zapier ", " salesforce ", " squarespace ", " zenddesk ", " hubspot ",
+		" airtable ", " notion ", " salesforce ", " squarespace ", " zenddesk ", " hubspot ",
 		" filemaker ", " sharepoint ", " moodle ", " odoo ", " kajabi ", " thinkific ",
 		" drupal ", " graphic design", " graphite design", "webassembly", "web assembly",
 		" devops ", " dev ops ", " kubernetes ", " voip ", " streaming ", " mulesoft ", " gsap ",
 		" tradingview ", " pinescript ", " metatrader ", " mt4 ", " mt5 ",
 		" framer ", " terraform ", " quickbooks ", " monday.com ", " playwright ",
 		" cheap ", " low budget ", " budget is low ",
-		/*" power automate ",*/ " make.com ", " podio ", " wix ", " bubble.io ", " unbounce ", " xano "];
+		/*" power automate ", " zapier ", " make.com ",*/ " podio ", " wix ", " bubble.io ", " unbounce ", " xano "];
 	for (var i in banList)
 		if (` ${jobTitleLowerCase} `.includes(banList[i])) return banList[i];
 	return false;

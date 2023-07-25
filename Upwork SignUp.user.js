@@ -477,7 +477,7 @@ const HOME_URL=`${SERVER_URL}/api/v2/account/history/today`;
                     return;
                 }else{
                     console.log("Email not verified", data.error);
-                    alertMessageNext(`Email not verified: ${data.error}`);
+                    alertMessageNext(`${data.error}`);
                 }
             } catch (error) {
                 console.warn('Error:', error);
@@ -485,13 +485,15 @@ const HOME_URL=`${SERVER_URL}/api/v2/account/history/today`;
             }
         }
         alertMessage("Failed to email-verify");
+        [...document.querySelectorAll("button")].filter(a => a.innerText.includes("Resend Verification Email")).forEach(a => a.click());
+        exitTimeout = 10;
     } else if (location.pathname.includes('/nx/signup/verify-email/token/')) {
         alertMessage("Email verified and processing...");
     } else if (location.pathname.endsWith('/nx/create-profile/') || location.pathname.endsWith('/nx/create-profile/title') || location.pathname.endsWith('/nx/create-profile/resume-import')) {
         await runScript();
         let signupInfo=unsafeWindow.signupInfo;
         alertMessageNext(signupInfo.email);
-        exitTimeout=99;
+        exitTimeout = 99;
         while(true){
             if (location.pathname.endsWith('/nx/create-profile/') || location.pathname.endsWith('/nx/create-profile/welcome')) {
                 [...document.querySelectorAll("button")].filter(a => a.innerText.includes("Get started")).forEach(a => a.click());
