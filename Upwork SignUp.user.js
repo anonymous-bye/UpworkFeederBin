@@ -106,7 +106,7 @@ const HOME_URL=`${SERVER_URL}/api/v2/account/history/today`;
         return null;
     }
 
-    let exitTimeout=-1;
+    let exitTimeout = 99;
     if(!location.href.startsWith(SERVER_URL)){
         let linkHome = document.createElement("a");
         linkHome.href=HOME_URL;
@@ -260,7 +260,7 @@ const HOME_URL=`${SERVER_URL}/api/v2/account/history/today`;
                 body: new URLSearchParams({
                     password: signupInfo.password,
                     profile: signupInfo.category,
-                    profileTitle: profileTitle,
+                    profileTitle: profileTitle || "",
                     state: state || "",
                     ip: ipAddress || "",
                 })
@@ -287,7 +287,7 @@ const HOME_URL=`${SERVER_URL}/api/v2/account/history/today`;
         GM_deleteValue("loginInfo");
         let roundCount=GM_getValue("roundCount")||0;
         roundCount++;
-        if(roundCount>10){
+        if(roundCount>=5){
             document.title="!!! Reopen Me";
             GM_deleteValue("roundCount");
         }else{
@@ -331,7 +331,6 @@ const HOME_URL=`${SERVER_URL}/api/v2/account/history/today`;
         await runScript();
         let signupInfo=unsafeWindow.signupInfo;
         alertMessageNext(signupInfo.email);
-        exitTimeout=99;
         for (let i = 0; i < 5; i++) {
             if (!document.querySelector("#login_username") || document.querySelector("#login_username").disabled) {
                 console.log("Username input is disabled... " + i);
@@ -378,7 +377,6 @@ const HOME_URL=`${SERVER_URL}/api/v2/account/history/today`;
         await runScript();
         let signupInfo=unsafeWindow.signupInfo;
         alertMessageNext(signupInfo.email);
-        exitTimeout=99;
         for (let i = 0; i < 5; i++) {
             if (!document.querySelector("input[name=radio-group-2]")) {
                 console.log("Input radio not found... " + i);
@@ -454,7 +452,6 @@ const HOME_URL=`${SERVER_URL}/api/v2/account/history/today`;
         await runScript();
         let signupInfo=unsafeWindow.signupInfo;
         alertMessageNext(signupInfo.email);
-        exitTimeout=99;
         for (let i = 0; i < 5; i++) {
             await new Promise(resolve => setTimeout(resolve, 3000));
             try {
@@ -478,6 +475,10 @@ const HOME_URL=`${SERVER_URL}/api/v2/account/history/today`;
                 }else{
                     console.log("Email not verified", data.error);
                     alertMessageNext(`${data.error}`);
+                    if(i==2){
+                        [...document.querySelectorAll("button")].filter(a => a.innerText.includes("Resend Verification Email")).forEach(a => a.click());
+                        alertMessageNext(`Resend Verification Email`);
+                    }
                 }
             } catch (error) {
                 console.warn('Error:', error);
@@ -485,15 +486,13 @@ const HOME_URL=`${SERVER_URL}/api/v2/account/history/today`;
             }
         }
         alertMessage("Failed to email-verify");
-        [...document.querySelectorAll("button")].filter(a => a.innerText.includes("Resend Verification Email")).forEach(a => a.click());
         exitTimeout = 10;
     } else if (location.pathname.includes('/nx/signup/verify-email/token/')) {
         alertMessage("Email verified and processing...");
-    } else if (location.pathname.endsWith('/nx/create-profile/') || location.pathname.endsWith('/nx/create-profile/title') || location.pathname.endsWith('/nx/create-profile/resume-import')) {
+    } else if (location.pathname.includes('/nx/create-profile/')) {
         await runScript();
         let signupInfo=unsafeWindow.signupInfo;
         alertMessageNext(signupInfo.email);
-        exitTimeout = 99;
         while(true){
             if (location.pathname.endsWith('/nx/create-profile/') || location.pathname.endsWith('/nx/create-profile/welcome')) {
                 [...document.querySelectorAll("button")].filter(a => a.innerText.includes("Get started")).forEach(a => a.click());
@@ -696,9 +695,6 @@ const HOME_URL=`${SERVER_URL}/api/v2/account/history/today`;
             }
             await new Promise(resolve => setTimeout(resolve, 1000));
         }
-    } else if (location.pathname.includes('/nx/create-profile/')) {
-        location.href="title";
-        return;
     } else if (location.pathname.includes('/nx/find-work/')) {
         let loginInfo=GM_getValue("loginInfo");
         if(!loginInfo){

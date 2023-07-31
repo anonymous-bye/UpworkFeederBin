@@ -31,38 +31,48 @@ EndFunc
 
 TrayTip("Ready", "Started", 1, 1)
 
-Local $interval=0;
 Local $dangerCount=0;
 Local $lastTitle="";
 While 1
 	Sleep(3000)
 	If $pause Then ContinueLoop
-	$interval+=1
-	If Mod($interval, 60) == 0 Then
-		Local $handle0=WinActivate("[REGEXPTITLE:(?i).* - Google Chrome$]")
-		If $handle0 > 0 Then
-			Local $pos0=WinGetPos($handle0)
-			MouseClick($MOUSE_CLICK_LEFT, $pos0[0]+20, $pos0[1]+200)
-		Else
-			ConsoleWrite(_NowCalc() & "  " & "Chrome not activated" & @CRLF)
+		
+	Local $handle=WinActivate("[REGEXPTITLE:^!!!.* - Google Chrome$]")
+	If $handle > 0 Then
+		Sleep(1000)
+		Send("^w")
+		Sleep(1000)
+		Local $title=WinGetTitle($handle)
+		If StringLeft($title, 3) == "!!!" Then 
+			ConsoleWrite(_NowCalc() & "  " & $title & " - Not closed, try again..." & @CRLF)
+			ContinueLoop
 		EndIf
+		Send("^T")
+		$lastTitle=""
+		$dangerCount=0
+		ConsoleWrite(_NowCalc() & "  " & "Closed tab and re-opened" & @CRLF)
+		ContinueLoop
 	EndIf
 	
-	Local $handle=WinGetHandle("[REGEXPTITLE:(?i).* - Google Chrome$]")
+	$handle=WinGetHandle("[REGEXPTITLE:(?i).* - Google Chrome$]")
 	If $handle > 0 Then
 		Local $title=WinGetTitle($handle)
-		If StringLeft($title, 3) == "!!!" Then
-			ReopenChromeTab()
-			$lastTitle=""
-		ElseIf $lastTitle==$title Then
+		If $lastTitle==$title Then
 			If $dangerCount>20 Then
 				ConsoleWrite(_NowCalc() & "  " & $lastTitle & ": " & $dangerCount & @CRLF)
 			EndIf
 			If $dangerCount>60 And StringLeft($title, 3) <> "$$$" Then
-				ReopenChromeTab()
+				WinActivate("[REGEXPTITLE:(?i).* - Google Chrome$]")
+				Sleep(1000)
+				Send("^w")
+				Sleep(1000)
+				Send("^T")
 				$lastTitle=""
+				$dangerCount=0
+				ConsoleWrite(_NowCalc() & "  " & "Closed tab and re-opened" & @CRLF)
+			Else
+				$dangerCount+=1
 			EndIf
-			$dangerCount+=1
 		Else
 			$lastTitle=$title
 			$dangerCount=0
@@ -72,14 +82,3 @@ While 1
 		$dangerCount=0
 	EndIf
 WEnd
-
-Func ReopenChromeTab()
-	WinActivate("[REGEXPTITLE:(?i).* - Google Chrome$]")
-	Sleep(1000)
-	Send("^w")
-	Sleep(1000)
-	Send("^T")
-	Sleep(5000)
-	$dangerCount=0
-	ConsoleWrite(_NowCalc() & "  " & "Closed tab and re-opened" & @CRLF)
-EndFunc

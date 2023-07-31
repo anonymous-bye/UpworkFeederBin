@@ -319,9 +319,9 @@ window.setTimeout(async () => {
 								const countryName = el.client.location.country;
 								if (window.checkCountryBan(countryName))
 									continue;
-								if (el.hourlyBudget.min && el.hourlyBudget.min < 10 || el.hourlyBudget.max && el.hourlyBudget.max < 20)
+								if (el.hourlyBudget.min && el.hourlyBudget.min < 10 && !el.hourlyBudget.max || el.hourlyBudget.max && el.hourlyBudget.max < 15)
 									continue;
-								if (el.amount.amount && el.amount.amount < 1500)
+								if (el.amount.amount && el.amount.amount < 500)
 									continue;
 								const jobTitle = el.title;
 								const jobDescription = el.description;
@@ -485,7 +485,8 @@ window.getProposalTypes = function (jobTitle, jobDescription, checkBan) {
 		return [
 			{ preference: 2, title: "scraping", profile: "automation", proposalId: "scraping-9", channel: 0, priority: 1 }
 		];
-	if ((jobTitle.includes("automat") || jobTitle.includes("bot dev")) && !jobTitle.includes("trading") && !jobTitle.includes("strateg"))
+	if ((jobTitle.includes("automat") || jobTitle.includes("bot dev")) && !jobTitle.includes("trading") && !jobTitle.includes("strateg")
+		|| jobTitle.includes("power automate") || jobTitle.includes("zapier") || jobTitle.includes("make.com"))
 		return [
 			{ preference: 1, title: "automation", profile: "automation", proposalId: "automation-9", channel: 0, priority: 3 },
 			{ preference: 2, title: "automation", profile: "basic", proposalId: "bot-auto-9", channel: 0, priority: 2 },

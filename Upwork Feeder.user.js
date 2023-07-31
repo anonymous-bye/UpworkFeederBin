@@ -26,7 +26,6 @@ const CHANNELS = 0;
 
 (async function() {
     'use strict';
-
     GM_addStyle(`.up-placeholder-shape{animation: none !important;background: #e1f2d9 !important;}.up-modal-backdrop{background: none !important;}`);
 
     function alertBig(message) {
@@ -163,7 +162,7 @@ const CHANNELS = 0;
             console.log(`applyNextEmail: ${data.email} -> ${data.newEmail}`);
             console.log(data);
             if(data.success){
-                alertMessageNext(`Try again with next email...`);
+                alertMessageNext(`${data.email.split("@")[0]} -> ${data.newEmail.split("@")[0]}`);
             }else{
                 alertMessageNext(`failed to apply next: ${data.error}`);
             }
@@ -222,13 +221,15 @@ const CHANNELS = 0;
                     let loginControlContinueButton = document.querySelector("#login_control_continue");
                     if (emailInput && !emailInput.disabled && loginPasswordCountinueButton && !loginPasswordCountinueButton.disabled) {
                         if ([...document.querySelectorAll("span")].filter(a => a.innerText.includes("Username is incorrect")).length) {
-                            alertMessage("Account not exist");
-                            await applyNextEmail(applyData, "$account-not-exist");
+                            alertMessage(`not-exist: ${applyData.email}`);
+                            await applyNextEmail(applyData, "not-exist");
+                            exitTimeout=1;
                             break;
                         }
                         if([...document.querySelectorAll("[role=alert]")].filter(a => a.innerText.includes("Your account is suspended")).length){
-                            alertMessage("Account suspended");
-                            await applyNextEmail(applyData, "$account-suspended");
+                            alertMessage(`suspended: ${applyData.email}`);
+                            await applyNextEmail(applyData, "suspended");
+                            exitTimeout=1;
                             break;
                         }
                         emailInput.value = applyData.email;
@@ -236,8 +237,9 @@ const CHANNELS = 0;
                         loginPasswordCountinueButton.click();
                     } else if (passwordInput && !passwordInput.disabled && loginControlContinueButton && !loginControlContinueButton.disabled) {
                         if ([...document.querySelectorAll("span")].filter(a => a.innerText.includes("Password is incorrect")).length) {
-                            alertMessage("Wrong password");
-                            await applyNextEmail(applyData, "$password-invalid");
+                            alertMessage(`password-invalid: ${applyData.email}`);
+                            await applyNextEmail(applyData, "password-invalid");
+                            exitTimeout=1;
                             break;
                         }
                         if (document.querySelectorAll("[role=alert]").length) {
@@ -305,7 +307,7 @@ const CHANNELS = 0;
                     connectsBalance=unsafeWindow.$nuxt.$store._vm.$data.$$state['job-apply'].selectedContractorJobApplyPriceInfo.connects;
                 }catch(error){}
                 console.log(`Insufficient connects: ${connectsBalance}`);
-                alertMessage(`Insufficient connects: ${connectsBalance}`)
+                alertMessage(`connects=${connectsBalance}: ${applyData.email}`)
                 await applyNextEmail(applyData, `connects=${connectsBalance}`);
                 exitTimeout=3;
                 return true;
@@ -319,8 +321,8 @@ const CHANNELS = 0;
                 clearTimeout(scrollToBottomTimeout);
                 unsafeWindow.scrollTo(0, 0);
                 console.log("Account suspended.");
-                alertMessage(`Suspended: ${applyData.email}`)
-                await applyNextEmail(applyData, "account-suspended");
+                alertMessage(`suspended: ${applyData.email}`)
+                await applyNextEmail(applyData, "suspended");
                 exitTimeout=3;
                 return true;
             }
@@ -536,8 +538,12 @@ const CHANNELS = 0;
             const data = await response.json();
             console.log("reported:");
             console.log(data);
-            alertMessage(`Succeed & reported: ${applyData.email}`);
+            alertMessage(`OK: ${applyData.email}`);
             exitTimeout=1;
+            for(let i=0;i<10;i++){
+                document.title=`OK: ${applyData.email}`;
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
         } catch (error) {
             console.error('Error:', error);
             alertMessage(error);
@@ -549,8 +555,18 @@ const CHANNELS = 0;
         let applyData=GM_getValue("applyData");
         location.href=`https://www.upwork.com/ab/proposals/job/${applyData.jobId}/apply/`;
         exitTimeout=15;
+    } else if (location.pathname.includes('/jobs/')) {
+        let applyData=GM_getValue("applyData");
+        if(applyData) {
+            let emailLabel = document.createElement("label");
+            emailLabel.style.cssText = "position: fixed;top: 4rem;right: 0.5rem;padding: 0.25rem 0.75rem;border-radius: 1rem;color: #fff;background: #f00;opacity: .75;z-index: 999999;"
+            emailLabel.innerText = applyData.email;
+            document.body.appendChild(emailLabel);
+            alertMessage(`bad-profile: ${applyData.email}`);
+            await applyNextEmail(applyData, "bad-profile");
+        }
+        exitTimeout=1;
     } else {
         exitTimeout=10;
     }
-
 })();
