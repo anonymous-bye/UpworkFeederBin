@@ -31,7 +31,7 @@ https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldm
 
 <br>
 
-## Table design for "tbl_profile"
+## Table structure for "tbl_profile"
 
 id: it is the profile id. look at my profiles as sample
 <br>
