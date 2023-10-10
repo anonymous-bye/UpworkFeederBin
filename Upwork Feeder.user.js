@@ -6,7 +6,7 @@
 // @author       Valloon
 // @match        https://www.upwork.com/*
 // @match        http://web.valloon.me/*
-// @match        http://localhost/*
+// @match        http://146.19.170.48/*
 // @icon         https://www.upwork.com/favicons.ico
 // @grant        unsafeWindow
 // @grant        GM_setValue
@@ -19,9 +19,9 @@
 // @require http://code.jquery.com/jquery-latest.js
 
 
-const SERVER_URL = "http://localhost";
+const SERVER_URL = "http://146.19.170.48";
 // const SERVER_URL = "http://web.valloon.me";
-const CHANNELS = 0;
+const CHANNELS = 4;
 
 
 (async function() {
@@ -266,7 +266,7 @@ const CHANNELS = 0;
             alertMessage(error);
         }
     } else if (location.pathname.includes('/proposals/job/')) {
-        exitTimeout=60;
+        exitTimeout=80;
         let applyData=GM_getValue("applyData");
         let checkBreakConfirmed;
         let scrollToBottomTimeout = setTimeout(function () { unsafeWindow.scrollTo(0, document.body.scrollHeight); }, 6000);
@@ -385,12 +385,36 @@ const CHANNELS = 0;
                 let hourlyRateInput = document.querySelector("#step-rate");
                 let projectModeRadio = document.querySelectorAll("input[type=radio][name=milestoneMode]")[1];
                 let fixedBudgetInput = document.querySelector("#charged-amount-id");
+
                 if (hourlyRateInput) {		// if (data.openingsCache[data.ciphertext].opening.hourlyBudgetType == 1) {
                     if (proposalData.hourlyRate) {
                         vueData.chargedAmount = proposalData.hourlyRate;
                         console.log("Hourly Rate Change into: " + proposalData.hourlyRate);
                     } else {
                         console.log("Hourly Rate Not Changed");
+                    }
+
+                    await new Promise(r => setTimeout(r, 100));
+
+                    while (true) {
+
+                        let firstRateIncreaseDropdown =[...document.querySelectorAll("span")].filter(a => a.innerText.includes(`Select a frequency`))[0];
+                        if (firstRateIncreaseDropdown) {
+                            firstRateIncreaseDropdown.click();
+                            console.log("Click Rate Increase Dropdown Div");
+                            break;
+                        }
+                        await new Promise(r => setTimeout(r, 500));
+                    }
+
+                    while (true) {
+                        let never = [...document.querySelectorAll("li")].filter(a => a.innerText.includes(`Never`))[0];
+                        if (never) {
+                            never.click();
+                            console.log("Click never");
+                            break;
+                        }
+                        await new Promise(r => setTimeout(r, 500));
                     }
                     break;
                 } else if (projectModeRadio || fixedBudgetInput) {		// } else if (data.openingsCache[data.ciphertext].opening.hourlyBudgetType == 2) {
@@ -404,6 +428,7 @@ const CHANNELS = 0;
                     let dropdownDiv = document.querySelector(".fe-proposal-job-estimated-duration [data-test=dropdown-toggle]");
                     dropdownDiv.click();
                     console.log("Click Dropdown Div");
+
                     while (true) {
                         let lessThan1Month = document.querySelector(".fe-proposal-job-estimated-duration .up-dropdown-menu-container ul[role=listbox] li:last-child");
                         if (lessThan1Month) {
@@ -418,6 +443,7 @@ const CHANNELS = 0;
                     // console.log("Unknown Budget Type: " + data.openingsCache[data.ciphertext].opening.hourlyBudgetType);
                     console.log("Budget Type Not Found, Retry...");
                 }
+                
                 await new Promise(r => setTimeout(r, 500));
             }
 
@@ -478,6 +504,7 @@ const CHANNELS = 0;
                 // break;
             }
 
+            
             for (let i = 0; i < 10; i++) {
                 await new Promise(r => setTimeout(r, 1000));
                 console.log(`Waiting for submit confirm dialog... ${i}`);
@@ -492,6 +519,10 @@ const CHANNELS = 0;
                 }
                 if (checkBreakConfirmed) break loop_1;
 
+                
+            }
+            
+            while (true) {
                 let btnSubmitConfirm = [...document.querySelectorAll(".fe-proposal-disintermediation-dialog button")].filter(a => a.innerText.trim() == "Submit")[0];
                 if (btnSubmitConfirm) {
 
@@ -500,9 +531,12 @@ const CHANNELS = 0;
                     console.log("Click Final Submit Button");
                     break;
                 }
+                await new Promise(r => setTimeout(r, 500));
+
             }
 
-            for (let i = 0; i < 5; i++) {
+
+            while (true) {
                 let btnSubmit = [...document.querySelectorAll("button")].filter(a => a.innerText.trim() == "Continue\nto submit")[0];
                 if (btnSubmit) {
                     btnSubmit.disabled = false;
