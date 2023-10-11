@@ -389,7 +389,7 @@ window.checkTitleBan = function (jobTitleLowerCase) {
 		" tradingview ", " pinescript ", " metatrader ", " mt4 ", " mt5 ",
 		" framer ", " terraform ", " quickbooks ", " monday.com ", " playwright ",
 		" cheap ", " low budget ", " budget is low ",
-		/*" power automate ", " zapier ", " make.com ",*/ " podio ", " wix ", " unbounce ", " xano "];
+		/*" power automate ", " zapier ", " make.com ",*/ " podio ", " unbounce ", " xano "];
 	for (var i in banList)
 		if (` ${jobTitleLowerCase} `.includes(banList[i])) return banList[i];
 	return false;
